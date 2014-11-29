@@ -1,0 +1,1 @@
+The cluster folder holds some of the commands I used for the clustering jobs, and the rec folder holds some commands and code I used for the recommendation section. 

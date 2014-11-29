@@ -1,0 +1,15 @@
+<workflow-app name="SampleWorkflow" xmlns="uri:oozie:workflow:0.2">
+	<action name="firstJob"> 
+		<pig>
+			<job-tracker>serverName:8021</job-tracker> 
+			<name-node>serverName:8020</name-node> 
+			<prepare>
+				<delete path="hdfs://clientName:8020/usr/sample/output- data"/>
+			</prepare> 
+			<job-xml>job.xml</job-xml> 
+			@@1 <script>totalmiles.pig</script> 
+		</pig>
+		<ok to="end"/>
+		<error to="end"/>
+	</action>
+</workflow-app>

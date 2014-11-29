@@ -1,0 +1,19 @@
+These were some helpful commands as I was working
+
+Pig commands
+hdfs namenode -format
+hdfs dfs -mkdir -p /home/vagrant/hadoop
+hdfs dfs -copyFromLocal 2000.csv /home/vagrant/hadoop/
+pig -x local totalmiles.pig
+
+
+
+
+sudo -u hdfs hadoop fs -copyFromLocal 2000.csv /home/hive/
+
+
+
+I was also able to run this script using oozie and the following command
+oozie pig -oozie http://vagrant-ubuntu-precise-64:11000/oozie -config job.properties -file totalmiles.pig 
+
+the output was the same

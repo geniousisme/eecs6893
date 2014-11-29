@@ -1,0 +1,3 @@
+First I tried to install all of the programs from their source code manually on Ubuntu 14.04. This did not work due to the versions not working with each other. Instead I went to install Big Top using PPA packages following the guide below: 
+https://cwiki.apache.org/confluence/display/BIGTOP/How+to+install+Hadoop+distribution+from+Bigtop+0.6.0
+This did not work on 14.04, and didn’t work the first time I tried it on 12.04. However, I started from scratch on 12.04 and eventually it worked. I used two sets of airline data from 2000 and 2002. 

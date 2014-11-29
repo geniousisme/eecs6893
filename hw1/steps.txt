@@ -1,0 +1,11 @@
+I worked my way through the pig, oozie, hbase, and hive examples in the Hadoop for Dummies book using flight data from 2000 and 2002. In each of the 4 directories, you’ll find a screenshot of the steps i worked through from the book. You’ll also find screenshots of my virtual machine running those examples to prove I got it working. 
+
+What I learned:
+Hadoop is a massive system with a lot of interworking parts that are communicating with each other, which means its essential that all versions work together. When I tried installing the parts separately, there were lots of compatibility issues, which is what makes something like BigTop so useful. Because its large and distributed with lots of interworking parts, its important that permissions have a clear hierarchy, and I had a lot of issues with permissions in the hdfs. 
+
+Luckily, hadoop is a highly used product, so googling error codes was helpful. It was tough getting the environment configured, but once it was, it worked well. There were also lots of tutorials to get whatever you needed.
+
+Working through the examples in the book, I got a sense of what the different hadoop pieces are capable of. The book had some errors, which made things difficult, but in general it was helpful. 
+
+
+Pig was by far the easiest piece to use, and I was able to get it working right away. HBase also worked quite well, and I was able to get the BigTable up and running quickly. Hive had lots of permissions problems, but once I did a little research and got things running this worked fine as well. One issue was that the metadata could get out of sink if I had to ctrl-c out of the program, but I found out that this could be fixed by deleting the metadata-db in /var/lib/hive/metadata/. I also eliminated most permissions issues by running hadoop fs -chmod 777 /path/to/hdfs/dir. There was one strange issue where trying to add a csv to a table failed on the first try but worked on the second try. I believe that this was happening because it duplicated the original file with the correct permissions, which is why it worked the second time. Oozie was the hardest to configure, but since it is essentially just for scheduling and managing, it was easy to use once configured, I used it to run a sample map reduce job as well as the pig and hive work I did in their respective steps. 

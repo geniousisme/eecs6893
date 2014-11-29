@@ -1,0 +1,1 @@
+I used hbase to build some sample tables and load data. The steps I followed from the book are in the steps folder, and the screenshots are here. 

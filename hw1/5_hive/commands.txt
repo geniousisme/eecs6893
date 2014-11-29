@@ -1,0 +1,58 @@
+here is an overview of some commands I ran
+
+
+CREATE TABLE IF NOT EXISTS FlightInfo2000 ( Year SMALLINT, Month TINYINT, DayofMonth TINYINT,DayOfWeek TINYINT,DepTime SMALLINT, CRSDepTime SMALLINT, ArrTime SMALLINT,CRSArrTime SMALLINT,UniqueCarrier STRING, FlightNum STRING, TailNum STRING, ActualElapsedTime SMALLINT, CRSElapsedTime SMALLINT, AirTime SMALLINT, ArrDelay SMALLINT, DepDelay SMALLINT, Origin STRING, Dest STRING,Distance INT,TaxiIn SMALLINT, TaxiOut SMALLINT, Cancelled SMALLINT, CancellationCode STRING, Diverted SMALLINT, CarrierDelay SMALLINT, WeatherDelay SMALLINT,NASDelay SMALLINT, SecurityDelay SMALLINT,LateAircraftDelay SMALLINT) COMMENT 'Flight InfoTable'
+ROW FORMAT DELIMITEDFIELDS TERMINATED BY ','LINES TERMINATED BY '\n'STORED AS TEXTFILETBLPROPERTIES ('creator'='tp', 'created_at'='Thu Sep 19 10:58:00 EDT 2013');LOAD DATA INPATH '/user/hive/2000.csv' INTO TABLE FlightInfo2000;
+
+
+SELECT * FROM FlightInfo2000 LIMIT 2;
+
+LOAD DATA INPATH '/user/hive/2000.csv' OVERWRITE INTO TABLE FlightInfo2000;
+
+CREATE TABLE IF NOT EXISTS FlightInfo2002 LIKE FlightInfo2000;
+
+LOAD DATA INPATH '/user/hive/2002.csv' INTO TABLE FlightInfo2002;
+
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS myFlightInfo (Year SMALLINT, DontQueryMonth TINYINT, DayofMonthTINYINT, DayOfWeek TINYINT,DepTime SMALLINT, ArrTime SMALLINT,UniqueCarrier STRING, FlightNum STRING,AirTime SMALLINT, ArrDelay SMALLINT, DepDelay SMALLINT, Origin STRING, Dest STRING, Cancelled SMALLINT, CancellationCode STRING)COMMENT 'Flight InfoTable' PARTITIONED BY(Month TINYINT) ROW FORMAT DELIMITEDFIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+STORED AS RCFILETBLPROPERTIES ('creator'='Bruce Brown', 'created_at'='MonSep 2 14:24:19 EDT 2013');INSERT OVERWRITE TABLE myflightinfoPARTITION (Month=1)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier,FlightNum, AirTime, ArrDelay, DepDelay, Origin,Dest, Cancelled, CancellationCodeFROM FlightInfo2002 WHERE Month=1;
+
+
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=2
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=3
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=4
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=5
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=6
+
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=7
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=8
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=9
+
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=10
+
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=11
+
+FROM FlightInfo2002INSERT INTO TABLE myflightinfoPARTITION (Month=2)SELECT Year, Month, DayofMonth, DayOfWeek, DepTime,ArrTime, UniqueCarrier, FlightNum,AirTime, ArrDelay, DepDelay, Origin, Dest, Cancelled,CancellationCode WHERE Month=12
+
+SHOW PARTITIONS myflightinfo;
+
+
+CREATE INDEX f00_index ON TABLE flightinfo2000 (Origin) AS 'COMPACT' WITH DEFERRED REBUILD;
+
+
+SELECT f00.Month, f00.DayOfMonth, cr.description, f00.Origin, f00.Dest,f00.FlightNum, f00.DepTime, MIN(f00.DepTime) OVER (PARTITION BY f00.DayOfMonth ORDER BY f00.DepTime) FROM flightinfo2000 f00 JOIN Carriers cr ONf00.UniqueCarrier = cr.codeWHERE f00.Origin = 'JFK' AND f08.Dest = 'ORD' AND
+f00.Month = 1 AND f00.DepTime != 0;

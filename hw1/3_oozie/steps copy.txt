@@ -1,0 +1,7 @@
+I was able to run oozie to run a map reduce job and call a pig script using the following commands
+
+oozie job -oozie http://localhost:11000/oozie -config examples/apps/map-reduce/job.properties -run
+
+oozie pig -oozie http://vagrant-ubuntu-precise-64:11000/oozie -config job.properties -file totalmiles.pig 
+
+Some of the scripts and config files I used are attached
