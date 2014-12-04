@@ -1,0 +1,1 @@
+CADUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/CADUSD_20140801.csv
