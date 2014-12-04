@@ -1,1 +1,0 @@
-CADUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/math4073/proj/src/files/prices/CADUSD_20140801.csv
