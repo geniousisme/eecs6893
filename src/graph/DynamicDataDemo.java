@@ -43,6 +43,7 @@ import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -61,12 +62,14 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
+import data_streamer.Market;
+
 /**
  * A demonstration application showing a time series chart where you can dynamically add
  * (random) data by clicking on a button.
  *
  */
-public class DynamicDataDemo extends ApplicationFrame implements ActionListener {
+public class DynamicDataDemo extends ApplicationFrame {
 
     /** The time series data. */
     private TimeSeries series;
@@ -87,13 +90,13 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         final JFreeChart chart = createChart(dataset);
 
         final ChartPanel chartPanel = new ChartPanel(chart);
-        final JButton button = new JButton("Add New Data Item");
-        button.setActionCommand("ADD_DATA");
-        button.addActionListener(this);
+        //final JButton button = new JButton("Add New Data Item");
+        //button.setActionCommand("ADD_DATA");
+        //button.addActionListener(this);
 
         final JPanel content = new JPanel(new BorderLayout());
         content.add(chartPanel);
-        content.add(button, BorderLayout.SOUTH);
+        //content.add(button, BorderLayout.SOUTH);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(content);
 
@@ -108,7 +111,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      */
     private JFreeChart createChart(final XYDataset dataset) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
-            "Dynamic Data Demo", 
+            "Price", 
             "Time", 
             "Value",
             dataset, 
@@ -119,7 +122,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         final XYPlot plot = result.getXYPlot();
         ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
-        axis.setFixedAutoRange(60000.0);  // 60 seconds
+        axis.setFixedAutoRange(10000.0);  // 60 seconds
         axis = plot.getRangeAxis();
         axis.setRange(0.0, 200.0); 
         return result;
@@ -141,14 +144,12 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      *
      * @param e  the action event.
      */
-    public void actionPerformed(final ActionEvent e) {
-        if (e.getActionCommand().equals("ADD_DATA")) {
-            final double factor = 0.90 + 0.2 * Math.random();
-            this.lastValue = this.lastValue * factor;
-            final Millisecond now = new Millisecond();
-            System.out.println("Now = " + now.toString());
-            this.series.add(new Millisecond(), this.lastValue);
-        }
+    public void addPoint(double v) {
+        //final double value = v;
+    	lastValue++;
+        final Millisecond now = new Millisecond();
+        System.out.println("Now = " + now.toString());
+        this.series.add(new Millisecond(), this.lastValue);
     }
 
     /**
@@ -158,10 +159,39 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      */
     public static void main(final String[] args) {
 
+    	Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data_streamer/market.config",
+				"/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data_streamer/data_config.txt",
+				"./");
+		
+	
+		try {
+			mkt.loadConfigs();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		try {
+			mkt.setupTimer();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
         final DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
+        
+        while(true){
+        	try{ 
+        		Thread.sleep(1000);
+        		demo.addPoint(1);
+        	} catch(Exception e){
+        		continue;
+        	}
+        }
+        
         
     }
 
