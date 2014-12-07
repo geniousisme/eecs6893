@@ -44,6 +44,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Dictionary;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -82,21 +83,17 @@ public class DynamicDataDemo extends ApplicationFrame {
      *
      * @param title  the frame title.
      */
-    public DynamicDataDemo(final String title) {
+    public DynamicDataDemo(final String title, String name) {
 
         super(title);
-        this.series = new TimeSeries("Random Data", Millisecond.class);
+        this.series = new TimeSeries(name, Millisecond.class);
         final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
         final JFreeChart chart = createChart(dataset);
 
         final ChartPanel chartPanel = new ChartPanel(chart);
-        //final JButton button = new JButton("Add New Data Item");
-        //button.setActionCommand("ADD_DATA");
-        //button.addActionListener(this);
 
         final JPanel content = new JPanel(new BorderLayout());
         content.add(chartPanel);
-        //content.add(button, BorderLayout.SOUTH);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(content);
 
@@ -122,9 +119,9 @@ public class DynamicDataDemo extends ApplicationFrame {
         final XYPlot plot = result.getXYPlot();
         ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
-        axis.setFixedAutoRange(10000.0);  // 60 seconds
+        axis.setFixedAutoRange(30000.0); //30 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(0.0, 200.0); 
+        axis.setAutoRangeMinimumSize(.00005);
         return result;
     }
     
@@ -146,10 +143,9 @@ public class DynamicDataDemo extends ApplicationFrame {
      */
     public void addPoint(double v) {
         //final double value = v;
-    	lastValue++;
         final Millisecond now = new Millisecond();
-        System.out.println("Now = " + now.toString());
-        this.series.add(new Millisecond(), this.lastValue);
+        System.out.println("Now = " + now.toString() + "\tPrice: " + v);
+        this.series.add(new Millisecond(), v);
     }
 
     /**
@@ -159,8 +155,8 @@ public class DynamicDataDemo extends ApplicationFrame {
      */
     public static void main(final String[] args) {
 
-    	Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data_streamer/market.config",
-				"/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data_streamer/data_config.txt",
+    	Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/market.config",
+				"/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/data_config.txt",
 				"./");
 		
 	
@@ -178,15 +174,27 @@ public class DynamicDataDemo extends ApplicationFrame {
 		}
 		
 		
-        final DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");
+        final DynamicDataDemo demo = new DynamicDataDemo("CADUSD", "CADUSD Price");
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
         
+        final DynamicDataDemo demo2 = new DynamicDataDemo("EURUSD", "EURUSD Price");
+        demo2.pack();
+        RefineryUtilities.centerFrameOnScreen(demo2);
+        demo2.setVisible(true);
+        
         while(true){
         	try{ 
-        		Thread.sleep(1000);
-        		demo.addPoint(1);
+        		Thread.sleep(500); //run it slightly fast
+        		mkt.tick(); //increments by 1 second
+        		Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur = mkt.getEx().getCurrent();
+        		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null){
+        			demo.addPoint(Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
+        		}
+        		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null){
+        			demo2.addPoint(Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
+        		}
         	} catch(Exception e){
         		continue;
         	}
