@@ -2,6 +2,16 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="opencsv-3.0.jar"/>
+	<classpathentry kind="lib" path="rsc/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="rsc/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="rsc/jfreechart-1.0.19-experimental.jar"/>
+	<classpathentry kind="lib" path="rsc/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="rsc/jfreesvg-2.0.jar"/>
+	<classpathentry kind="lib" path="rsc/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="rsc/opencsv-3.0.jar"/>
+	<classpathentry kind="lib" path="rsc/orsoncharts-1.4-eval-nofx.jar"/>
+	<classpathentry kind="lib" path="rsc/orsonpdf-1.6-eval.jar"/>
+	<classpathentry kind="lib" path="rsc/servlet.jar"/>
+	<classpathentry kind="lib" path="rsc/swtgraphics2d.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
