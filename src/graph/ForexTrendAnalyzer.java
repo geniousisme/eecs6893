@@ -80,15 +80,15 @@ import data_streamer.Market;
  * (random) data by clicking on a button.
  *
  */
-public class DynamicDataDemo extends JFrame implements ActionListener
+public class ForexTrendAnalyzer extends JFrame implements ActionListener
 {
 	
 	private JMenu display;
 		private JMenuItem prices_mi, trends_mi, predictions_mi, exitMenuItem;
 	private JMenu exitMenu;	
-    private JFrame tframe, pframe;
+    private JFrame tframe, pframe, pdframe;
 	
-	public DynamicDataDemo()
+	public ForexTrendAnalyzer()
 	{
 		super("Forex Analyzer");
 		
@@ -202,6 +202,18 @@ public class DynamicDataDemo extends JFrame implements ActionListener
     	tframe.setVisible(true);
     	/** END OF TREND FRAMES **/
     	
+    	/** prediction FRAMES **/
+        JTabbedPane pred = new JTabbedPane();
+        pdframe = new JFrame();
+        pdframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        pdframe.getContentPane().add (pred);
+        pdframe.setTitle ("Forex Trend Analyzer");
+        pdframe.pack();
+        pdframe.setLocation (
+          (screenSize.width - pdframe.getSize().width) / 2,
+          (screenSize.height - pdframe.getSize().height) / 2);
+    	pdframe.setVisible(true);
+    	/** END OF TREND FRAMES **/
     	
     	
     	
@@ -294,7 +306,7 @@ public class DynamicDataDemo extends JFrame implements ActionListener
      */
     public static void main(final String[] args) {
 		
-		DynamicDataDemo d = new DynamicDataDemo();
+		ForexTrendAnalyzer d = new ForexTrendAnalyzer();
 		d.setVisible(true);
 		d.run();
 		

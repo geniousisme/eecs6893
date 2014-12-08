@@ -1,4 +1,4 @@
-package graph;
+package samples;
 
 import java.io.*;
 import org.jfree.data.category.DefaultCategoryDataset;
