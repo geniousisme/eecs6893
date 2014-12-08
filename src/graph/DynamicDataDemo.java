@@ -45,6 +45,9 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.Dictionary;
 
@@ -52,6 +55,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -74,65 +80,58 @@ import data_streamer.Market;
  * (random) data by clicking on a button.
  *
  */
-public class DynamicDataDemo {
+public class DynamicDataDemo extends JFrame implements ActionListener
+{
+	
+	private JMenu display;
+		private JMenuItem prices_mi, trends_mi, predictions_mi, exitMenuItem;
+	private JMenu exitMenu;	
+    private JFrame tframe, pframe;
+	
+	public DynamicDataDemo()
+	{
+		super("Forex Analyzer");
+		
+		display = new JMenu("Display");
+		exitMenu = new JMenu("Exit");
+		
+		prices_mi = new JMenuItem("Prices");
+		trends_mi = new JMenuItem("Trends");
+		predictions_mi = new JMenuItem("Predictions");
+		
+		exitMenuItem = new JMenuItem("Exit");
+		
+		display.add(prices_mi);
+		display.add(trends_mi);
+		display.add(predictions_mi);
+	
+		exitMenu.add(exitMenuItem);
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(display);
+		menuBar.add(exitMenu);
+		
+		for(int i = 0; i<menuBar.getMenuCount();i++)
+		{
+			JMenu currentMenu1 = menuBar.getMenu(i);
+			for(int j = 0; j<currentMenu1.getItemCount();j++)
+			{
+				JMenuItem currentItem = currentMenu1.getItem(j);
+				if(currentItem != null)
+				{
+					currentItem.addActionListener(this);
+				}
+			}
+		}
+		
+		setJMenuBar(menuBar);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		pack();
+	}
+	
+	public void run(){
 
-    /**
-     * Creates a sample chart.
-     * 
-     * @param dataset  the dataset.
-     * 
-     * @return A sample chart.
-     */
-    public static JFreeChart createChart(final XYDataset dataset) {
-        final JFreeChart result = ChartFactory.createTimeSeriesChart(
-            "Price", 
-            "Time", 
-            "Value",
-            dataset, 
-            true, 
-            true, 
-            false
-        );
-        final XYPlot plot = result.getXYPlot();
-        ValueAxis axis = plot.getDomainAxis();
-        axis.setAutoRange(true);
-        axis.setFixedAutoRange(30000.0); //30 seconds
-        axis = plot.getRangeAxis();
-        axis.setAutoRangeMinimumSize(.00005);
-        return result;
-    }
-    
-    // ****************************************************************************
-    // * JFREECHART DEVELOPER GUIDE                                               *
-    // * The JFreeChart Developer Guide, written by David Gilbert, is available   *
-    // * to purchase from Object Refinery Limited:                                *
-    // *                                                                          *
-    // * http://www.object-refinery.com/jfreechart/guide.html                     *
-    // *                                                                          *
-    // * Sales are used to provide funding for the JFreeChart project - please    * 
-    // * support us so that we can continue developing free software.             *
-    // ****************************************************************************
-    
-    /**
-     * Handles a click on the button by adding new (random) data.
-     *
-     * @param e  the action event.
-     */
-    public static void addPoint(TimeSeries series, double v) {
-        //final double value = v;
-        final Millisecond now = new Millisecond();
-        System.out.println("Now = " + now.toString() + "\tPrice: " + v);
-        series.add(new Millisecond(), v);
-    }
-
-    /**
-     * Starting point for the demonstration application.
-     *
-     * @param args  ignored.
-     */
-    public static void main(final String[] args) {
-
-    	Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/market.config",
+		Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/market.config",
 				"/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/data_config.txt",
 				"./");
 		
@@ -149,9 +148,7 @@ public class DynamicDataDemo {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
-		
-		
+
 		/** PRICE DATA **/
 		/* CADUSD */
         TimeSeries cadusd = new TimeSeries("CADUSD", Millisecond.class);
@@ -179,7 +176,8 @@ public class DynamicDataDemo {
         JTabbedPane prices = new JTabbedPane();
         prices.addTab("CADUSD", cadcon);
         prices.addTab("EURUSD", eurcon);
-        JFrame pframe = new JFrame();
+        pframe = new JFrame();
+        pframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
         pframe.getContentPane().add (prices);
         pframe.setTitle ("Forex Trend Analyzer");
         pframe.pack();
@@ -193,7 +191,8 @@ public class DynamicDataDemo {
     	
     	/** TRENDS FRAMES **/
         JTabbedPane trends = new JTabbedPane();
-        JFrame tframe = new JFrame();
+        tframe = new JFrame();
+        tframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
         tframe.getContentPane().add (trends);
         tframe.setTitle ("Forex Trend Analyzer");
         tframe.pack();
@@ -227,8 +226,78 @@ public class DynamicDataDemo {
         		continue;
         	}
         }
+	}
+	
+	
+    /**
+     * Creates a sample chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return A sample chart.
+     */
+    public static JFreeChart createChart(final XYDataset dataset) {
+        final JFreeChart result = ChartFactory.createTimeSeriesChart(
+            "Price", 
+            "Time", 
+            "Value",
+            dataset, 
+            true, 
+            true, 
+            false
+        );
+        final XYPlot plot = result.getXYPlot();
+        ValueAxis axis = plot.getDomainAxis();
+        axis.setAutoRange(true);
+        axis.setFixedAutoRange(30000.0); //30 seconds
+        axis = plot.getRangeAxis();
+        axis.setAutoRangeMinimumSize(.00005);
+        return result;
+    }
         
-        
+    /**
+     * Handles a click on the button by adding new (random) data.
+     *
+     * @param e  the action event.
+     */
+    public static void addPoint(TimeSeries series, double v) {
+        //final double value = v;
+        final Millisecond now = new Millisecond();
+        System.out.println("Now = " + now.toString() + "\tPrice: " + v);
+        series.add(new Millisecond(), v);
+    }
+
+    
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == exitMenuItem)
+		{
+			dispose();
+			System.exit(0);
+		} else if(e.getSource() == prices_mi){
+			pframe.setVisible(true);
+		} else if(e.getSource() == trends_mi) {
+			tframe.setVisible(true);
+		} else if(e.getSource() == predictions_mi){
+			
+		}
+	}
+    
+
+    
+    
+    
+    /**
+     * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
+     */
+    public static void main(final String[] args) {
+		
+		DynamicDataDemo d = new DynamicDataDemo();
+		d.setVisible(true);
+		d.run();
+		
     }
 
 }
