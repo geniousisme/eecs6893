@@ -100,12 +100,13 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     /** End Price **/
     
     /** Trend **/
-    private ArrayList<Double> simple_moving_average_5_cad, simple_moving_average_5_eur;
-	private TimeSeries cadusd_sma5, eurusd_sma5;
-	private TimeSeriesCollection cadds_sma5, eurds_sma5;
-    private JFreeChart cadc_sma5, eurc_sma5;
-    private ChartPanel cadcp_sma5, eurcp_sma5;
-    private JPanel cadcon_sma5, eurcon_sma5;
+    private ArrayList<Double> simple_moving_average_5_cad, simple_moving_average_5_eur,
+    					simple_moving_average_10_cad, simple_moving_average_10_eur;
+	private TimeSeries cadusd_sma5, eurusd_sma5, cadusd_sma10, eurusd_sma10;
+	private TimeSeriesCollection cadds_sma5, eurds_sma5, cadds_sma10, eurds_sma10;
+    private JFreeChart cadc_sma5, eurc_sma5, cadc_sma10, eurc_sma10;
+    private ChartPanel cadcp_sma5, eurcp_sma5, cadcp_sma10, eurcp_sma10;
+    private JPanel cadcon_sma5, eurcon_sma5, cadcon_sma10, eurcon_sma10;
     /** End Trend **/
     
     
@@ -149,8 +150,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
         setLocation (
-                (screenSize.width - getSize().width) / 2,
-                (screenSize.height - getSize().height) / 2);
+            (screenSize.width - getSize().width) / 2,
+            (screenSize.height - getSize().height) / 2);
 	}
 	
 	
@@ -232,6 +233,26 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcon_sma5 = new JPanel(new BorderLayout());
         eurcon_sma5.add(eurcp_sma5);
         eurcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+    	simple_moving_average_10_cad = new ArrayList<Double>();
+        cadusd_sma10 = new TimeSeries("CADUSD", Millisecond.class);
+        cadds_sma10 = new TimeSeriesCollection(cadusd_sma10);
+        cadc_sma10 = createChart(cadds_sma10, "CADUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
+        cadcp_sma10 = new ChartPanel(cadc_sma5);
+        cadcon_sma10 = new JPanel(new BorderLayout());
+        cadcon_sma10.add(cadcp_sma10);
+        cadcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+    	simple_moving_average_10_eur = new ArrayList<Double>();
+        eurusd_sma10 = new TimeSeries("EURUSD", Millisecond.class);
+        eurds_sma10 = new TimeSeriesCollection(eurusd_sma10);
+        eurc_sma10 = createChart(eurds_sma10, "EURUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
+        eurcp_sma10 = new ChartPanel(eurc_sma10);
+        eurcon_sma10 = new JPanel(new BorderLayout());
+        eurcon_sma10.add(eurcp_sma10);
+        eurcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+        
     	/** END OF TREND DATA **/
         
         
@@ -240,6 +261,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         tframe = new JFrame();
         trends.addTab("CADUSD-SMA5", cadcon_sma5);
         trends.addTab("EURUSD-SMA5", eurcon_sma5);
+        trends.addTab("CADUSD-SMA10", cadcon_sma10);
+        trends.addTab("EURUSD-SMA10", eurcon_sma10);
         tframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
         tframe.getContentPane().add (trends);
         tframe.setTitle ("Forex Trend Analyzer");
@@ -283,10 +306,13 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null) {
         			addPoint(cadusd_price, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
         			addPointSMA(cadusd_sma5, simple_moving_average_5_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 5);
+        			addPointSMA(cadusd_sma10, simple_moving_average_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
+
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null) {
         			addPoint(eurusd_price, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
         			addPointSMA(eurusd_sma5, simple_moving_average_5_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 5);
+        			addPointSMA(eurusd_sma10, simple_moving_average_10_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 10);
         		}
         	} catch(Exception e) {
         		e.printStackTrace();
