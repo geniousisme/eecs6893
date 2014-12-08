@@ -184,18 +184,18 @@ public class DynamicDataDemo extends ApplicationFrame {
         RefineryUtilities.centerFrameOnScreen(demo2);
         demo2.setVisible(true);
         
-        while(true){
-        	try{ 
+        while(true) {
+        	try { 
         		Thread.sleep(500); //run it slightly fast
         		mkt.tick(); //increments by 1 second
         		Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur = mkt.getEx().getCurrent();
-        		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null){
+        		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null) {
         			demo.addPoint(Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
         		}
-        		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null){
+        		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null) {
         			demo2.addPoint(Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
         		}
-        	} catch(Exception e){
+        	} catch(Exception e) {
         		continue;
         	}
         }
