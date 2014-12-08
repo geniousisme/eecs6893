@@ -148,6 +148,9 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 		setJMenuBar(menuBar);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
+        setLocation (
+                (screenSize.width - getSize().width) / 2,
+                (screenSize.height - getSize().height) / 2);
 	}
 	
 	
@@ -236,6 +239,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         trends = new JTabbedPane();
         tframe = new JFrame();
         trends.addTab("CADUSD-SMA5", cadcon_sma5);
+        trends.addTab("EURUSD-SMA5", eurcon_sma5);
         tframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
         tframe.getContentPane().add (trends);
         tframe.setTitle ("Forex Trend Analyzer");
