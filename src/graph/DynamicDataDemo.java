@@ -40,7 +40,9 @@ package graph;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -48,8 +50,10 @@ import java.util.Dictionary;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -70,34 +74,7 @@ import data_streamer.Market;
  * (random) data by clicking on a button.
  *
  */
-public class DynamicDataDemo extends ApplicationFrame {
-
-    /** The time series data. */
-    private TimeSeries series;
-
-    /** The most recent value added. */
-    private double lastValue = 100.0;
-
-    /**
-     * Constructs a new demonstration application.
-     *
-     * @param title  the frame title.
-     */
-    public DynamicDataDemo(final String title, String name) {
-
-        super(title);
-        this.series = new TimeSeries(name, Millisecond.class);
-        final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
-        final JFreeChart chart = createChart(dataset);
-
-        final ChartPanel chartPanel = new ChartPanel(chart);
-
-        final JPanel content = new JPanel(new BorderLayout());
-        content.add(chartPanel);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(content);
-
-    }
+public class DynamicDataDemo {
 
     /**
      * Creates a sample chart.
@@ -106,7 +83,7 @@ public class DynamicDataDemo extends ApplicationFrame {
      * 
      * @return A sample chart.
      */
-    private JFreeChart createChart(final XYDataset dataset) {
+    public static JFreeChart createChart(final XYDataset dataset) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
             "Price", 
             "Time", 
@@ -141,11 +118,11 @@ public class DynamicDataDemo extends ApplicationFrame {
      *
      * @param e  the action event.
      */
-    public void addPoint(double v) {
+    public static void addPoint(TimeSeries series, double v) {
         //final double value = v;
         final Millisecond now = new Millisecond();
         System.out.println("Now = " + now.toString() + "\tPrice: " + v);
-        this.series.add(new Millisecond(), v);
+        series.add(new Millisecond(), v);
     }
 
     /**
@@ -174,15 +151,66 @@ public class DynamicDataDemo extends ApplicationFrame {
 		}
 		
 		
-        final DynamicDataDemo demo = new DynamicDataDemo("CADUSD", "CADUSD Price");
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
+		
+		/** PRICE DATA **/
+		/* CADUSD */
+        TimeSeries cadusd = new TimeSeries("CADUSD", Millisecond.class);
+        TimeSeriesCollection cadds = new TimeSeriesCollection(cadusd);
+        JFreeChart cadc = createChart(cadds);
+        ChartPanel cadcp = new ChartPanel(cadc);
+        JPanel cadcon = new JPanel(new BorderLayout());
+        cadcon.add(cadcp);
+        cadcp.setPreferredSize(new java.awt.Dimension(500, 270));
+        //setContentPane(content);
         
-        final DynamicDataDemo demo2 = new DynamicDataDemo("EURUSD", "EURUSD Price");
-        demo2.pack();
-        RefineryUtilities.centerFrameOnScreen(demo2);
-        demo2.setVisible(true);
+        /* EURUSD */
+        TimeSeries eurusd = new TimeSeries("EURUSD", Millisecond.class);
+        TimeSeriesCollection eurds = new TimeSeriesCollection(eurusd);
+        JFreeChart eurc = createChart(eurds);
+        ChartPanel eurcp = new ChartPanel(eurc);
+        JPanel eurcon = new JPanel(new BorderLayout());
+        eurcon.add(eurcp);
+        eurcp.setPreferredSize(new java.awt.Dimension(500, 270));
+        //setContentPane(content);
+        /** END OF PRICE DATA **/
+        
+        
+        /** PRICE FRAMES **/
+        JTabbedPane prices = new JTabbedPane();
+        prices.addTab("CADUSD", cadcon);
+        prices.addTab("EURUSD", eurcon);
+        JFrame pframe = new JFrame();
+        pframe.getContentPane().add (prices);
+        pframe.setTitle ("Forex Trend Analyzer");
+        pframe.pack();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        pframe.setLocation (
+          (screenSize.width - pframe.getSize().width) / 2,
+          (screenSize.height - pframe.getSize().height) / 2);
+    	pframe.setVisible(true);
+        /** END OF PRICE FRAMES **/
+    	
+    	
+    	/** TRENDS FRAMES **/
+        JTabbedPane trends = new JTabbedPane();
+        JFrame tframe = new JFrame();
+        tframe.getContentPane().add (trends);
+        tframe.setTitle ("Forex Trend Analyzer");
+        tframe.pack();
+        tframe.setLocation (
+          (screenSize.width - tframe.getSize().width) / 2,
+          (screenSize.height - tframe.getSize().height) / 2);
+    	tframe.setVisible(true);
+    	/** END OF TREND FRAMES **/
+    	
+    	
+    	
+    	
+    	/****************
+    	 * 
+    	 * RUN TIME BELOW HERE
+    	 * 
+    	 ****************/
         
         while(true) {
         	try { 
@@ -190,10 +218,10 @@ public class DynamicDataDemo extends ApplicationFrame {
         		mkt.tick(); //increments by 1 second
         		Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur = mkt.getEx().getCurrent();
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null) {
-        			demo.addPoint(Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
+        			addPoint(cadusd, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null) {
-        			demo2.addPoint(Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
+        			addPoint(eurusd, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
         		}
         	} catch(Exception e) {
         		continue;
