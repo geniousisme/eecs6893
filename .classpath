@@ -13,5 +13,12 @@
 	<classpathentry kind="lib" path="rsc/orsonpdf-1.6-eval.jar"/>
 	<classpathentry kind="lib" path="rsc/servlet.jar"/>
 	<classpathentry kind="lib" path="rsc/swtgraphics2d.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-core-0.9-job.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-core-0.9-sources.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-core-0.9-tests.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-core-0.9.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-math-0.9-sources.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-math-0.9-tests.jar"/>
+	<classpathentry kind="lib" path="rsc/mahout-math-0.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

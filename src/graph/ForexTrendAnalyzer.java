@@ -41,21 +41,14 @@ package graph;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -71,8 +64,6 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 import data_streamer.Market;
 
@@ -84,11 +75,18 @@ import data_streamer.Market;
 public class ForexTrendAnalyzer extends JFrame implements ActionListener
 {
 	
-	private JMenu display;
-		private JMenuItem prices_mi, trends_mi, predictions_mi, exitMenuItem;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private JMenu display, trends_m, analytics;
+	private JMenuItem prices_mi, sma_mi, sd_mi, bb_mi, ema_mi,
+					predictions_mi, exitMenuItem;
 	private JMenu exitMenu;	
-	private JFrame tframe, pframe, pdframe;
-    private JTabbedPane prices, trends, pred;
+	private JFrame sma_frame, sd_frame, ema_frame, bb_frame,
+					pframe, pdframe;
+    private JTabbedPane prices, sma, sd, bb, ema, pred;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	
     /** Price **/
@@ -101,12 +99,18 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     
     /** Trend **/
     private ArrayList<Double> simple_moving_average_5_cad, simple_moving_average_5_eur,
-    					simple_moving_average_10_cad, simple_moving_average_10_eur;
-	private TimeSeries cadusd_sma5, eurusd_sma5, cadusd_sma10, eurusd_sma10;
-	private TimeSeriesCollection cadds_sma5, eurds_sma5, cadds_sma10, eurds_sma10;
-    private JFreeChart cadc_sma5, eurc_sma5, cadc_sma10, eurc_sma10;
-    private ChartPanel cadcp_sma5, eurcp_sma5, cadcp_sma10, eurcp_sma10;
-    private JPanel cadcon_sma5, eurcon_sma5, cadcon_sma10, eurcon_sma10;
+    					simple_moving_average_10_cad, simple_moving_average_10_eur,
+    					standard_deviation_10_cad, standard_deviation_10_eur;
+	private TimeSeries cadusd_sma5, eurusd_sma5, cadusd_sma10, eurusd_sma10,
+						cadusd_sd10, eurusd_sd10;
+	private TimeSeriesCollection cadds_sma5, eurds_sma5, cadds_sma10, eurds_sma10,
+									cadds_sd10, eurds_sd10;
+    private JFreeChart cadc_sma5, eurc_sma5, cadc_sma10, eurc_sma10,
+    					cadc_sd10, eurc_sd10;
+    private ChartPanel cadcp_sma5, eurcp_sma5, cadcp_sma10, eurcp_sma10,
+    					cadcp_sd10, eurcp_sd10;
+    private JPanel cadcon_sma5, eurcon_sma5, cadcon_sma10, eurcon_sma10,
+    				cadcon_sd10, eurcon_sd10;
     /** End Trend **/
     
     
@@ -116,15 +120,28 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 		
 		display = new JMenu("Display");
 		exitMenu = new JMenu("Exit");
+		trends_m = new JMenu("Trends");
+		analytics = new JMenu("Analytics");
+
 		
 		prices_mi = new JMenuItem("Prices");
-		trends_mi = new JMenuItem("Trends");
 		predictions_mi = new JMenuItem("Predictions");
+		sma_mi = new JMenuItem("Simple Moving Averages");
+		ema_mi = new JMenuItem("Exponential Moving Averages"); 
+		sd_mi = new JMenuItem("Standard deviations"); 
+		bb_mi = new JMenuItem("Bollinger Bands"); 
+
 		
 		exitMenuItem = new JMenuItem("Exit");
 		
+		trends_m.add(sma_mi);
+		trends_m.add(ema_mi);
+		trends_m.add(sd_mi);
+		trends_m.add(bb_mi);
+
+		
 		display.add(prices_mi);
-		display.add(trends_mi);
+		display.add(trends_m);
 		display.add(predictions_mi);
 	
 		exitMenu.add(exitMenuItem);
@@ -139,6 +156,17 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 			for(int j = 0; j<currentMenu1.getItemCount();j++)
 			{
 				JMenuItem currentItem = currentMenu1.getItem(j);
+				System.out.println(currentItem.getClass());
+				if(!currentItem.getClass().toString().contains("javax.swing.JMenuItem")){
+					for(int k = 0; k< ((JMenu)currentItem).getItemCount();k++){
+						JMenuItem currentItem2 = ((JMenu) currentItem).getItem(k);
+						System.out.println(currentItem2);
+						if(currentItem2 != null)
+						{
+							currentItem2.addActionListener(this);
+						}						
+					}
+				}
 				if(currentItem != null)
 				{
 					currentItem.addActionListener(this);
@@ -210,7 +238,6 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         pframe.setLocation (
           (screenSize.width - pframe.getSize().width) / 2,
           (screenSize.height - pframe.getSize().height) / 2);
-    	pframe.setVisible(true);
         /** END OF PRICE FRAMES **/
     	
     	
@@ -252,25 +279,69 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcon_sma10.add(eurcp_sma10);
         eurcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
+    	standard_deviation_10_cad = new ArrayList<Double>();
+        cadusd_sd10 = new TimeSeries("CADUSD", Millisecond.class);
+        cadds_sd10 = new TimeSeriesCollection(cadusd_sd10);
+        cadc_sd10 = createChart(cadds_sd10, "CADUSD-SD10", "TIME", "10 Tick Standard Deviation");
+        cadcp_sd10 = new ChartPanel(cadc_sd10);
+        cadcon_sd10 = new JPanel(new BorderLayout());
+        cadcon_sd10.add(cadcp_sd10);
+        cadcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+    	standard_deviation_10_eur = new ArrayList<Double>();
+        eurusd_sd10 = new TimeSeries("EURUSD", Millisecond.class);
+        eurds_sd10 = new TimeSeriesCollection(eurusd_sd10);
+        eurc_sd10 = createChart(eurds_sd10, "EURUSD-SD10", "TIME", "10 Tick Standard Deviation");
+        eurcp_sd10 = new ChartPanel(eurc_sd10);
+        eurcon_sd10 = new JPanel(new BorderLayout());
+        eurcon_sd10.add(eurcp_sd10);
+        eurcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	/** END OF TREND DATA **/
         
         
     	/** TRENDS FRAMES **/
-        trends = new JTabbedPane();
-        tframe = new JFrame();
-        trends.addTab("CADUSD-SMA5", cadcon_sma5);
-        trends.addTab("EURUSD-SMA5", eurcon_sma5);
-        trends.addTab("CADUSD-SMA10", cadcon_sma10);
-        trends.addTab("EURUSD-SMA10", eurcon_sma10);
-        tframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
-        tframe.getContentPane().add (trends);
-        tframe.setTitle ("Forex Trend Analyzer");
-        tframe.pack();
-        tframe.setLocation (
-          (screenSize.width - tframe.getSize().width) / 2,
-          (screenSize.height - tframe.getSize().height) / 2);
-    	tframe.setVisible(true);
+        sma = new JTabbedPane();
+        ema = new JTabbedPane();
+        sd = new JTabbedPane();
+        bb = new JTabbedPane();
+        sma_frame = new JFrame();
+        sd_frame = new JFrame();
+        ema_frame = new JFrame();
+        bb_frame = new JFrame();
+        sma.addTab("CADUSD-SMA5", cadcon_sma5);
+        sma.addTab("EURUSD-SMA5", eurcon_sma5);
+        sma.addTab("CADUSD-SMA10", cadcon_sma10);
+        sma.addTab("EURUSD-SMA10", eurcon_sma10);
+        sd.addTab("CADUSD-SD10", cadcon_sd10);
+        sma_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        sd_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        ema_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        bb_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        sma_frame.getContentPane().add (sma);
+        sd_frame.getContentPane().add (sd);
+        sma_frame.setTitle ("Forex Trend Analyzer");
+        sd_frame.setTitle ("Forex Trend Analyzer");
+        ema_frame.setTitle ("Forex Trend Analyzer");
+        bb_frame.setTitle ("Forex Trend Analyzer");
+
+        sma_frame.pack();
+        sd_frame.pack();
+        ema_frame.pack();
+        bb_frame.pack();
+        sma_frame.setLocation (
+          (screenSize.width - sma_frame.getSize().width) / 2,
+          (screenSize.height - sma_frame.getSize().height) / 2);
+        sd_frame.setLocation (
+                (screenSize.width - sma_frame.getSize().width) / 2,
+                (screenSize.height - sma_frame.getSize().height) / 2);
+        ema_frame.setLocation (
+                (screenSize.width - sma_frame.getSize().width) / 2,
+                (screenSize.height - sma_frame.getSize().height) / 2);
+        bb_frame.setLocation (
+                (screenSize.width - sma_frame.getSize().width) / 2,
+                (screenSize.height - sma_frame.getSize().height) / 2);
     	/** END OF TREND FRAMES **/
     	
     	
@@ -287,7 +358,6 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         pdframe.setLocation (
           (screenSize.width - pdframe.getSize().width) / 2,
           (screenSize.height - pdframe.getSize().height) / 2);
-    	pdframe.setVisible(true);
     	/** END OF PREDICTION FRAMES **/
     	
     	
@@ -300,19 +370,20 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         
         while(true) {
         	try { 
-        		Thread.sleep(500); //run it slightly fast
+        		Thread.sleep(100); //run it 10x fast
         		mkt.tick(); //increments by 1 second
         		Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur = mkt.getEx().getCurrent();
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null) {
         			addPoint(cadusd_price, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
         			addPointSMA(cadusd_sma5, simple_moving_average_5_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 5);
         			addPointSMA(cadusd_sma10, simple_moving_average_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
-
+        			addPointSD(cadusd_sd10, standard_deviation_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null) {
         			addPoint(eurusd_price, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
         			addPointSMA(eurusd_sma5, simple_moving_average_5_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 5);
         			addPointSMA(eurusd_sma10, simple_moving_average_10_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 10);
+        			addPointSD(eurusd_sd10, standard_deviation_10_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 10);
         		}
         	} catch(Exception e) {
         		e.printStackTrace();
@@ -370,6 +441,16 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
        }
    }
 
+   public static void addPointSD(TimeSeries series, ArrayList<Double> arr, double v, int n) {
+       if(arr.size()>n){
+    	   arr.remove(arr.size()-1); //size is 4
+       }
+       arr.add(v);
+       if(arr.size()>=n){
+    	   series.add(new Millisecond(), sd(arr));
+       }
+   }
+   
    public static Double sma(ArrayList<Double> arr){
 	   double total = 0.0;
 	   for(Double d: arr){
@@ -377,17 +458,50 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 	   }
 	   return total/((double)arr.size());
    }
+   
+   public static Double sd(ArrayList<Double> arr){
+	   double var = simple_variance(arr);
+	   double sign = Math.signum(var);  
+	   return sign*Math.sqrt(Math.abs(var));
+   }
+   
+	public static double simple_variance(ArrayList<Double> arr){
+		double sum = 0.0;
+		double ave =0.0;
+		for(int i=0;i<arr.size();i++){
+			sum += arr.get(i);
+		}
+		if(arr.size()!=0){
+			ave = sum/arr.size();
+		}
+		double sum2 = 0.0;
+		double ave2 = 0.0;
+		for(int i=0;i<arr.size();i++){
+			sum2 += Math.pow(arr.get(i)-ave, 2);
+		}
+		if(arr.size()!=0){
+			ave2 = sum2/arr.size();
+		}
+		return ave2;
+	}
     
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		System.out.println(e.getSource());
 		if(e.getSource() == exitMenuItem)
 		{
 			dispose();
 			System.exit(0);
 		} else if(e.getSource() == prices_mi){
 			pframe.setVisible(true);
-		} else if(e.getSource() == trends_mi) {
-			tframe.setVisible(true);
+		} else if(e.getSource() == sma_mi) {
+			sma_frame.setVisible(true);
+		} else if(e.getSource() == sd_mi){
+			sd_frame.setVisible(true);
+		} else if(e.getSource() == ema_mi){
+			ema_frame.setVisible(true);
+		} else if(e.getSource() == bb_mi){
+			bb_frame.setVisible(true);
 		} else if(e.getSource() == predictions_mi){
 			
 		}
