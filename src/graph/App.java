@@ -20,7 +20,7 @@ public class App {
 
         public static void main(String[] args) throws IOException, TasteException {
 
-                DataModel model = new FileDataModel(new File("data.txt"));
+                DataModel model = new FileDataModel(new File("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/test.csv"));
                 UserSimilarity userSimilarity = new PearsonCorrelationSimilarity(model);
 
                 UserNeighborhood neighborhood = new NearestNUserNeighborhood(3,

@@ -156,11 +156,9 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 			for(int j = 0; j<currentMenu1.getItemCount();j++)
 			{
 				JMenuItem currentItem = currentMenu1.getItem(j);
-				System.out.println(currentItem.getClass());
 				if(!currentItem.getClass().toString().contains("javax.swing.JMenuItem")){
 					for(int k = 0; k< ((JMenu)currentItem).getItemCount();k++){
 						JMenuItem currentItem2 = ((JMenu) currentItem).getItem(k);
-						System.out.println(currentItem2);
 						if(currentItem2 != null)
 						{
 							currentItem2.addActionListener(this);
@@ -265,7 +263,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         cadusd_sma10 = new TimeSeries("CADUSD", Millisecond.class);
         cadds_sma10 = new TimeSeriesCollection(cadusd_sma10);
         cadc_sma10 = createChart(cadds_sma10, "CADUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
-        cadcp_sma10 = new ChartPanel(cadc_sma5);
+        cadcp_sma10 = new ChartPanel(cadc_sma10);
         cadcon_sma10 = new JPanel(new BorderLayout());
         cadcon_sma10.add(cadcp_sma10);
         cadcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
@@ -314,6 +312,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         sma.addTab("CADUSD-SMA10", cadcon_sma10);
         sma.addTab("EURUSD-SMA10", eurcon_sma10);
         sd.addTab("CADUSD-SD10", cadcon_sd10);
+        sd.addTab("EURUSD-SD10", eurcon_sd10);
         sma_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
         sd_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
         ema_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
