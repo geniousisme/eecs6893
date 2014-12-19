@@ -28,6 +28,7 @@ public class SimpleStatsTest
         Date today = cal.getTime();
         cal.add(Calendar.DATE, -1);
         Date yesterday = cal.getTime();
-        System.out.println(SimpleStats.avgTrade(yesterday, today, mkt));
+        System.out.println("Average: " + SimpleStats.avgTrade(new Date(0), today, mkt));
+        System.out.println("Variance: " + SimpleStats.varTrade(new Date(0), today, mkt));
     }
 }
