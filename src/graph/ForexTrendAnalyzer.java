@@ -27,6 +27,7 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.clustering.classify.WeightedVectorWritable;
@@ -84,7 +85,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 	private TimeSeries cadusd_sma5, eurusd_sma5, jpyusd_sma5,nzdusd_sma5,chfusd_sma5,gbpusd_sma5, audusd_sma5,
 						cadusd_sma10, eurusd_sma10, jpyusd_sma10, nzdusd_sma10, gbpusd_sma10, chfusd_sma10, audusd_sma10,
 						cadusd_sd10, eurusd_sd10, jpyusd_sd10, nzdusd_sd10, chfusd_sd10, gbpusd_sd10, audusd_sd10,
-						cadusd_bb10;
+						cadusd_bb10_h, cadusd_bb10_l;
 	private TimeSeriesCollection cadds_sma5, eurds_sma5, jpyds_sma5, nzdds_sma5, chfds_sma5, gbpds_sma5, audds_sma5,
 								cadds_sma10, eurds_sma10, jpyds_sma10, gbpds_sma10, nzdds_sma10, audds_sma10, chfds_sma10,
 									cadds_sd10, eurds_sd10, jpyds_sd10, nzdds_sd10, gbpds_sd10, audds_sd10, chfds_sd10,
@@ -196,16 +197,16 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 
 		/** PRICE DATA **/
 		/* CADUSD */
-        cadusd_price = new TimeSeries("CADUSD", Millisecond.class);
+        cadusd_price = new TimeSeries("CADUSD-Price", Millisecond.class);
         cadds_price = new TimeSeriesCollection(cadusd_price);
         cadc_price = createChart(cadds_price, "CADUSD", "TIME", "PRICE");
         cadcp_price = new ChartPanel(cadc_price);
         cadcon_price = new JPanel(new BorderLayout());
-        cadcon_price.add(cadcp_price);
+        cadcon_price.add(cadcp_price);          
         cadcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
         
         /* EURUSD */
-        eurusd_price = new TimeSeries("EURUSD", Millisecond.class);
+        eurusd_price = new TimeSeries("EURUSD-Price", Millisecond.class);
         eurds_price = new TimeSeriesCollection(eurusd_price);
         eurc_price = createChart(eurds_price, "EURUSD", "TIME", "PRICE");
         eurcp_price = new ChartPanel(eurc_price);
@@ -214,7 +215,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
         
 		/* JPYUSD */
-        jpyusd_price = new TimeSeries("JPYUSD", Millisecond.class);
+        jpyusd_price = new TimeSeries("JPYUSD-Price", Millisecond.class);
         jpyds_price = new TimeSeriesCollection(jpyusd_price);
         jpyc_price = createChart(jpyds_price, "JPYUSD", "TIME", "PRICE");
         jpycp_price = new ChartPanel(jpyc_price);
@@ -223,7 +224,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         jpycp_price.setPreferredSize(new java.awt.Dimension(500, 270));
         
 		/* CHFUSD */
-        chfusd_price = new TimeSeries("CHFUSD", Millisecond.class);
+        chfusd_price = new TimeSeries("CHFUSD-Price", Millisecond.class);
         chfds_price = new TimeSeriesCollection(chfusd_price);
         chfc_price = createChart(chfds_price, "CHFUSD", "TIME", "PRICE");
         chfcp_price = new ChartPanel(chfc_price);
@@ -232,7 +233,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         chfcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
         
 		/* AUDUSD */
-        audusd_price = new TimeSeries("AUDUSD", Millisecond.class);
+        audusd_price = new TimeSeries("AUDUSD-Price", Millisecond.class);
         audds_price = new TimeSeriesCollection(audusd_price);
         audc_price = createChart(audds_price, "AUDUSD", "TIME", "PRICE");
         audcp_price = new ChartPanel(audc_price);
@@ -241,7 +242,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         audcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
         
 		/* GBPUSD */
-        gbpusd_price = new TimeSeries("GBPUSD", Millisecond.class);
+        gbpusd_price = new TimeSeries("GBPUSD-Price", Millisecond.class);
         gbpds_price = new TimeSeriesCollection(gbpusd_price);
         gbpc_price = createChart(gbpds_price, "GBPUSD", "TIME", "PRICE");
         gbpcp_price = new ChartPanel(gbpc_price);
@@ -250,7 +251,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         gbpcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
         
 		/* NZDUSD */
-        nzdusd_price = new TimeSeries("NZDUSD", Millisecond.class);
+        nzdusd_price = new TimeSeries("NZDUSD-Price", Millisecond.class);
         nzdds_price = new TimeSeriesCollection(nzdusd_price);
         nzdc_price = createChart(nzdds_price, "NZDUSD", "TIME", "PRICE");
         nzdcp_price = new ChartPanel(nzdc_price);
@@ -286,8 +287,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     	
     	/** TREND DATA **/
     	simple_moving_average_5_cad = new ArrayList<Double>();
-        cadusd_sma5 = new TimeSeries("CADUSD", Millisecond.class);
-        cadds_sma5 = new TimeSeriesCollection(cadusd_sma5);
+        cadusd_sma5 = new TimeSeries("CADUSD-SMA5", Millisecond.class);
+        cadds_sma5 = new TimeSeriesCollection();
+        cadds_sma5.addSeries(cadusd_sma5);
+        cadds_sma5.addSeries(cadusd_price);
         cadc_sma5 = createChart(cadds_sma5, "CADUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
         cadcp_sma5 = new ChartPanel(cadc_sma5);
         cadcon_sma5 = new JPanel(new BorderLayout());
@@ -295,8 +298,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         cadcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_5_eur = new ArrayList<Double>();
-        eurusd_sma5 = new TimeSeries("EURUSD", Millisecond.class);
-        eurds_sma5 = new TimeSeriesCollection(eurusd_sma5);
+        eurusd_sma5 = new TimeSeries("EURUSD-SMA5", Millisecond.class);
+        eurds_sma5 = new TimeSeriesCollection();
+        eurds_sma5.addSeries(eurusd_sma5);
+        eurds_sma5.addSeries(eurusd_price);
         eurc_sma5 = createChart(eurds_sma5, "EURUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
         eurcp_sma5 = new ChartPanel(eurc_sma5);
         eurcon_sma5 = new JPanel(new BorderLayout());
@@ -304,8 +309,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_5_jpy = new ArrayList<Double>();
-    	jpyusd_sma5 = new TimeSeries("JPYUSD", Millisecond.class);
-    	jpyds_sma5 = new TimeSeriesCollection(jpyusd_sma5);
+    	jpyusd_sma5 = new TimeSeries("JPYUSD-SMA5", Millisecond.class);
+    	jpyds_sma5 = new TimeSeriesCollection();
+        jpyds_sma5.addSeries(jpyusd_sma5);
+        jpyds_sma5.addSeries(jpyusd_price);
     	jpyc_sma5 = createChart(jpyds_sma5, "JPYUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
     	jpycp_sma5 = new ChartPanel(jpyc_sma5);
     	jpycon_sma5 = new JPanel(new BorderLayout());
@@ -313,8 +320,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     	jpycp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_5_chf = new ArrayList<Double>();
-        chfusd_sma5 = new TimeSeries("CHFUSD", Millisecond.class);
-        chfds_sma5 = new TimeSeriesCollection(chfusd_sma5);
+        chfusd_sma5 = new TimeSeries("CHFUSD-SMA5", Millisecond.class);
+        chfds_sma5 = new TimeSeriesCollection();
+        chfds_sma5.addSeries(chfusd_sma5);
+        chfds_sma5.addSeries(chfusd_price);
         chfc_sma5 = createChart(chfds_sma5, "CHFUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
         chfcp_sma5 = new ChartPanel(chfc_sma5);
         chfcon_sma5 = new JPanel(new BorderLayout());
@@ -322,8 +331,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         chfcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_5_nzd = new ArrayList<Double>();
-        nzdusd_sma5 = new TimeSeries("NZDUSD", Millisecond.class);
-        nzdds_sma5 = new TimeSeriesCollection(nzdusd_sma5);
+        nzdusd_sma5 = new TimeSeries("NZDUSD-SMA5", Millisecond.class);
+        nzdds_sma5 = new TimeSeriesCollection();
+        nzdds_sma5.addSeries(nzdusd_sma5);
+        nzdds_sma5.addSeries(nzdusd_price);
         nzdc_sma5 = createChart(nzdds_sma5, "NZDUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
         nzdcp_sma5 = new ChartPanel(nzdc_sma5);
         nzdcon_sma5 = new JPanel(new BorderLayout());
@@ -331,8 +342,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         nzdcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_5_gbp = new ArrayList<Double>();
-        gbpusd_sma5 = new TimeSeries("GBPUSD", Millisecond.class);
-        gbpds_sma5 = new TimeSeriesCollection(gbpusd_sma5);
+        gbpusd_sma5 = new TimeSeries("GBPUSD-SMA5", Millisecond.class);
+        gbpds_sma5 = new TimeSeriesCollection();
+        gbpds_sma5.addSeries(gbpusd_sma5);
+        gbpds_sma5.addSeries(gbpusd_price);
         gbpc_sma5 = createChart(gbpds_sma5, "GBPUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
         gbpcp_sma5 = new ChartPanel(gbpc_sma5);
         gbpcon_sma5 = new JPanel(new BorderLayout());
@@ -340,8 +353,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         gbpcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_5_aud = new ArrayList<Double>();
-        audusd_sma5 = new TimeSeries("AUDUSD", Millisecond.class);
-        audds_sma5 = new TimeSeriesCollection(audusd_sma5);
+        audusd_sma5 = new TimeSeries("AUDUSD-SMA5", Millisecond.class);
+        audds_sma5 = new TimeSeriesCollection();
+        audds_sma5.addSeries(audusd_sma5);
+        audds_sma5.addSeries(audusd_price);
         audc_sma5 = createChart(audds_sma5, "AUDUSD-SMA5", "TIME", "5 Tick Simple Moving Average");
         audcp_sma5 = new ChartPanel(audc_sma5);
         audcon_sma5 = new JPanel(new BorderLayout());
@@ -349,8 +364,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         audcp_sma5.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_cad = new ArrayList<Double>();
-        cadusd_sma10 = new TimeSeries("CADUSD", Millisecond.class);
-        cadds_sma10 = new TimeSeriesCollection(cadusd_sma10);
+        cadusd_sma10 = new TimeSeries("CADUSD-SMA10", Millisecond.class);
+        cadds_sma10 = new TimeSeriesCollection();
+        cadds_sma10.addSeries(cadusd_sma10);
+        cadds_sma10.addSeries(cadusd_price);
         cadc_sma10 = createChart(cadds_sma10, "CADUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         cadcp_sma10 = new ChartPanel(cadc_sma10);
         cadcon_sma10 = new JPanel(new BorderLayout());
@@ -358,8 +375,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         cadcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_eur = new ArrayList<Double>();
-        eurusd_sma10 = new TimeSeries("EURUSD", Millisecond.class);
-        eurds_sma10 = new TimeSeriesCollection(eurusd_sma10);
+        eurusd_sma10 = new TimeSeries("EURUSD-SMA10", Millisecond.class);
+        eurds_sma10 = new TimeSeriesCollection();
+        eurds_sma10.addSeries(eurusd_sma10);
+        eurds_sma10.addSeries(eurusd_price);
         eurc_sma10 = createChart(eurds_sma10, "EURUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         eurcp_sma10 = new ChartPanel(eurc_sma10);
         eurcon_sma10 = new JPanel(new BorderLayout());
@@ -367,8 +386,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_jpy = new ArrayList<Double>();
-        jpyusd_sma10 = new TimeSeries("JPYUSD", Millisecond.class);
-        jpyds_sma10 = new TimeSeriesCollection(eurusd_sma10);
+        jpyusd_sma10 = new TimeSeries("JPYUSD-SMA10", Millisecond.class);
+        jpyds_sma10 = new TimeSeriesCollection();
+        jpyds_sma10.addSeries(jpyusd_sma10);
+        jpyds_sma10.addSeries(jpyusd_price);
         jpyc_sma10 = createChart(jpyds_sma10, "JPYUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         jpycp_sma10 = new ChartPanel(jpyc_sma10);
         jpycon_sma10 = new JPanel(new BorderLayout());
@@ -376,8 +397,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         jpycp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_nzd = new ArrayList<Double>();
-        nzdusd_sma10 = new TimeSeries("NZDUSD", Millisecond.class);
-        nzdds_sma10 = new TimeSeriesCollection(eurusd_sma10);
+        nzdusd_sma10 = new TimeSeries("NZDUSD-SMA10", Millisecond.class);
+        nzdds_sma10 = new TimeSeriesCollection();
+        nzdds_sma10.addSeries(nzdusd_sma10);
+        nzdds_sma10.addSeries(nzdusd_price);
         nzdc_sma10 = createChart(nzdds_sma10, "NZDUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         nzdcp_sma10 = new ChartPanel(nzdc_sma10);
         nzdcon_sma10 = new JPanel(new BorderLayout());
@@ -385,8 +408,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         nzdcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_gbp = new ArrayList<Double>();
-        gbpusd_sma10 = new TimeSeries("GBPUSD", Millisecond.class);
-        gbpds_sma10 = new TimeSeriesCollection(eurusd_sma10);
+        gbpusd_sma10 = new TimeSeries("GBPUSD-SMA10", Millisecond.class);
+        gbpds_sma10 = new TimeSeriesCollection();
+        gbpds_sma10.addSeries(gbpusd_sma10);
+        gbpds_sma10.addSeries(gbpusd_price);
         gbpc_sma10 = createChart(gbpds_sma10, "GBPUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         gbpcp_sma10 = new ChartPanel(gbpc_sma10);
         gbpcon_sma10 = new JPanel(new BorderLayout());
@@ -394,8 +419,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         gbpcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_chf = new ArrayList<Double>();
-        chfusd_sma10 = new TimeSeries("CHFUSD", Millisecond.class);
-        chfds_sma10 = new TimeSeriesCollection(chfusd_sma10);
+        chfusd_sma10 = new TimeSeries("CHFUSD-SMA10", Millisecond.class);
+        chfds_sma10 = new TimeSeriesCollection();
+        chfds_sma10.addSeries(chfusd_sma10);
+        chfds_sma10.addSeries(chfusd_price);
         chfc_sma10 = createChart(chfds_sma10, "CHFUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         chfcp_sma10 = new ChartPanel(chfc_sma10);
         chfcon_sma10 = new JPanel(new BorderLayout());
@@ -403,8 +430,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         chfcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	simple_moving_average_10_aud = new ArrayList<Double>();
-        audusd_sma10 = new TimeSeries("AUDUSD", Millisecond.class);
-        audds_sma10 = new TimeSeriesCollection(audusd_sma10);
+        audusd_sma10 = new TimeSeries("AUDUSD-SMA10", Millisecond.class);
+        audds_sma10 = new TimeSeriesCollection();
+        audds_sma10.addSeries(audusd_sma10);
+        audds_sma10.addSeries(audusd_price);
         audc_sma10 = createChart(audds_sma10, "AUDUSD-SMA10", "TIME", "10 Tick Simple Moving Average");
         audcp_sma10 = new ChartPanel(audc_sma10);
         audcon_sma10 = new JPanel(new BorderLayout());
@@ -412,8 +441,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         audcp_sma10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_cad = new ArrayList<Double>();
-        cadusd_sd10 = new TimeSeries("CADUSD", Millisecond.class);
-        cadds_sd10 = new TimeSeriesCollection(cadusd_sd10);
+        cadusd_sd10 = new TimeSeries("CADUSD-SD10", Millisecond.class);
+        cadds_sd10 = new TimeSeriesCollection();
+        cadds_sd10.addSeries(cadusd_sd10);
+        //cadds_sd10.addSeries(cadusd_price);
         cadc_sd10 = createChart(cadds_sd10, "CADUSD-SD10", "TIME", "10 Tick Standard Deviation");
         cadcp_sd10 = new ChartPanel(cadc_sd10);
         cadcon_sd10 = new JPanel(new BorderLayout());
@@ -421,8 +452,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         cadcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_eur = new ArrayList<Double>();
-        eurusd_sd10 = new TimeSeries("EURUSD", Millisecond.class);
-        eurds_sd10 = new TimeSeriesCollection(eurusd_sd10);
+        eurusd_sd10 = new TimeSeries("EURUSD-SD10", Millisecond.class);
+        eurds_sd10 = new TimeSeriesCollection();
+        eurds_sd10.addSeries(eurusd_sd10);
+        //eurds_sd10.addSeries(eurusd_price);
         eurc_sd10 = createChart(eurds_sd10, "EURUSD-SD10", "TIME", "10 Tick Standard Deviation");
         eurcp_sd10 = new ChartPanel(eurc_sd10);
         eurcon_sd10 = new JPanel(new BorderLayout());
@@ -430,8 +463,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_jpy = new ArrayList<Double>();
-        jpyusd_sd10 = new TimeSeries("JPYUSD", Millisecond.class);
-        jpyds_sd10 = new TimeSeriesCollection(eurusd_sd10);
+        jpyusd_sd10 = new TimeSeries("JPYUSD-SD10", Millisecond.class);
+        jpyds_sd10 = new TimeSeriesCollection();
+        eurds_sd10.addSeries(eurusd_sd10);
+        //eurds_sd10.addSeries(eurusd_price);
         jpyc_sd10 = createChart(jpyds_sd10, "JPYUSD-SD10", "TIME", "10 Tick Standard Deviation");
         jpycp_sd10 = new ChartPanel(jpyc_sd10);
         jpycon_sd10 = new JPanel(new BorderLayout());
@@ -439,8 +474,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         jpycp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_nzd = new ArrayList<Double>();
-        nzdusd_sd10 = new TimeSeries("NZDUSD", Millisecond.class);
+        nzdusd_sd10 = new TimeSeries("NZDUSD-SD10", Millisecond.class);
         nzdds_sd10 = new TimeSeriesCollection(nzdusd_sd10);
+        nzdds_sd10.addSeries(nzdusd_sd10);
+        //nzdds_sd10.addSeries(nzdusd_price);
         nzdc_sd10 = createChart(nzdds_sd10, "NZDUSD-SD10", "TIME", "10 Tick Standard Deviation");
         nzdcp_sd10 = new ChartPanel(nzdc_sd10);
         nzdcon_sd10 = new JPanel(new BorderLayout());
@@ -448,8 +485,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         nzdcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_chf = new ArrayList<Double>();
-        chfusd_sd10 = new TimeSeries("CHFUSD", Millisecond.class);
-        chfds_sd10 = new TimeSeriesCollection(chfusd_sd10);
+        chfusd_sd10 = new TimeSeries("CHFUSD-SD10", Millisecond.class);
+        chfds_sd10 = new TimeSeriesCollection();
+        chfds_sd10.addSeries(chfusd_sd10);
+        //chfds_sd10.addSeries(chfusd_price);
         chfc_sd10 = createChart(chfds_sd10, "CHFUSD-SD10", "TIME", "10 Tick Standard Deviation");
         chfcp_sd10 = new ChartPanel(chfc_sd10);
         chfcon_sd10 = new JPanel(new BorderLayout());
@@ -457,8 +496,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         chfcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_gbp = new ArrayList<Double>();
-        gbpusd_sd10 = new TimeSeries("GBPUSD", Millisecond.class);
-        gbpds_sd10 = new TimeSeriesCollection(gbpusd_sd10);
+        gbpusd_sd10 = new TimeSeries("GBPUSD-SD10", Millisecond.class);
+        gbpds_sd10 = new TimeSeriesCollection();
+        gbpds_sd10.addSeries(gbpusd_sd10);
+        //gbpds_sd10.addSeries(gbpusd_price);
         gbpc_sd10 = createChart(gbpds_sd10, "GBPUSD-SD10", "TIME", "10 Tick Standard Deviation");
         gbpcp_sd10 = new ChartPanel(gbpc_sd10);
         gbpcon_sd10 = new JPanel(new BorderLayout());
@@ -466,22 +507,31 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         gbpcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
     	standard_deviation_10_aud = new ArrayList<Double>();
-        audusd_sd10 = new TimeSeries("AUDUSD", Millisecond.class);
-        audds_sd10 = new TimeSeriesCollection(audusd_sd10);
+        audusd_sd10 = new TimeSeries("AUDUSD-SD10", Millisecond.class);
+        audds_sd10 = new TimeSeriesCollection();
+        audds_sd10.addSeries(audusd_sd10);
+        //audds_sd10.addSeries(audusd_price);
         audc_sd10 = createChart(audds_sd10, "AUDUSD-SD10", "TIME", "10 Tick Standard Deviation");
         audcp_sd10 = new ChartPanel(audc_sd10);
         audcon_sd10 = new JPanel(new BorderLayout());
         audcon_sd10.add(audcp_sd10);
         audcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
         
-    	standard_deviation_10_cad = new ArrayList<Double>();
-        cadusd_sd10 = new TimeSeries("CADUSD", Millisecond.class);
-        cadds_sd10 = new TimeSeriesCollection(cadusd_sd10);
-        cadc_sd10 = createChart(cadds_sd10, "CADUSD-SD10", "TIME", "10 Tick Standard Deviation");
-        cadcp_sd10 = new ChartPanel(cadc_sd10);
-        cadcon_sd10 = new JPanel(new BorderLayout());
-        cadcon_sd10.add(cadcp_sd10);
-        cadcp_sd10.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+        
+    	cadusd_bb10_h = new TimeSeries("CADUSD-BBH", Millisecond.class);
+    	cadusd_bb10_l = new TimeSeries("CADUSD-BBL", Millisecond.class);
+    	cadds_bb10 = new TimeSeriesCollection();
+    	cadds_bb10.addSeries(cadusd_price);
+    	cadds_bb10.addSeries(cadusd_bb10_h);
+    	cadds_bb10.addSeries(cadusd_bb10_l);
+        cadc_bb10 = createChart(cadds_bb10, "CADUSD-BB10", "TIME", "10 Tick Bollinger Bands");
+        cadcp_bb10 = new ChartPanel(cadc_bb10);
+        cadcon_bb10 = new JPanel(new BorderLayout());
+        cadcon_bb10.add(cadcp_bb10);
+        cadcp_bb10.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+        
         
     	/** END OF TREND DATA **/
         
@@ -491,10 +541,12 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         ema = new JTabbedPane();
         sd = new JTabbedPane();
         bb = new JTabbedPane();
+        
         sma_frame = new JFrame();
         sd_frame = new JFrame();
         ema_frame = new JFrame();
         bb_frame = new JFrame();
+        
         sma.addTab("CADUSD-SMA5", cadcon_sma5);
         sma.addTab("EURUSD-SMA5", eurcon_sma5);
         sma.addTab("JPYUSD-SMA5", jpycon_sma5);
@@ -518,6 +570,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         sd.addTab("CHFUSD-SD10", chfcon_sd10);
         sd.addTab("AUDUSD-SD10", audcon_sd10);
 
+        bb.addTab("CADUSD-BB10", cadcon_bb10);
+        
         sma_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
         sd_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
         ema_frame.setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -525,6 +579,9 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 
         sma_frame.getContentPane().add (sma);
         sd_frame.getContentPane().add (sd);
+        bb_frame.getContentPane().add(bb);
+        
+        
         sma_frame.setTitle ("Forex Trend Analyzer");
         sd_frame.setTitle ("Forex Trend Analyzer");
         ema_frame.setTitle ("Forex Trend Analyzer");
@@ -589,6 +646,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         			addPointSMA(cadusd_sma5, simple_moving_average_5_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 5);
         			addPointSMA(cadusd_sma10, simple_moving_average_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
         			addPointSD(cadusd_sd10, standard_deviation_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
+        			addPointBB(cadusd_bb10_h, cadusd_bb10_l, standard_deviation_10_cad);
+
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null) {
         			addPoint(eurusd_price, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
@@ -690,6 +749,12 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
        if(arr.size()>=n){
     	   series.add(new Millisecond(), sd(arr));
        }
+   }
+   
+   public static void addPointBB(TimeSeries series_h, TimeSeries series_l, ArrayList<Double> arr) {
+	   double sd = sd(arr);
+       series_h.add(new Millisecond(), sma(arr)+2*sd);
+       series_l.add(new Millisecond(), sma(arr)-2*sd);
    }
    
    public static Double sma(ArrayList<Double> arr){
