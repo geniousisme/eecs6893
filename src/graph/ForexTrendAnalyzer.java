@@ -47,6 +47,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -55,6 +56,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.apache.mahout.cf.taste.model.DataModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -64,6 +66,14 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
+import org.apache.mahout.math.RandomAccessSparseVector;
+import org.apache.mahout.math.Vector;
+import org.apache.mahout.clustering.classify.WeightedVectorWritable;
+import org.apache.mahout.clustering.kmeans.KMeansDriver;
+import org.apache.mahout.clustering.kmeans.Kluster;
+import org.apache.mahout.common.HadoopUtil;
+import org.apache.mahout.common.distance.DistanceMeasure;
+import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
 
 import data_streamer.Market;
 
@@ -90,27 +100,41 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	
     /** Price **/
-	private TimeSeries cadusd_price, eurusd_price;
-	private TimeSeriesCollection cadds_price, eurds_price;
-    private JFreeChart cadc_price, eurc_price;
-    private ChartPanel cadcp_price, eurcp_price;
-    private JPanel cadcon_price, eurcon_price;
+	private TimeSeries cadusd_price, eurusd_price, jpyusd_price, nzdusd_price, gbpusd_price, chfusd_price, audusd_price;
+	private TimeSeriesCollection cadds_price, eurds_price, jpyds_price, nzcds_price, gbpds_price, chfds_price, audds_price;
+    private JFreeChart cadc_price, eurc_price, jpyc_price, nzdc_price, gbpc_price, chfc_price, audc_price;
+    private ChartPanel cadcp_price, eurcp_price, jpycp_price, nzdcp_price, gbpcp_price, chfcp_price, audcp_price;
+    private JPanel cadcon_price, eurcon_price, jpycon_price, nzdcon_price, gbpcon_price, chfcon_price, audcon_price;
     /** End Price **/
     
     /** Trend **/
     private ArrayList<Double> simple_moving_average_5_cad, simple_moving_average_5_eur,
+    					simple_moving_average_5_jpy, simple_moving_average_5_nzd,
+    					simple_moving_average_5_chf, simple_moving_average_5_gbp,
+    					simple_moving_average_5_aud,
     					simple_moving_average_10_cad, simple_moving_average_10_eur,
-    					standard_deviation_10_cad, standard_deviation_10_eur;
-	private TimeSeries cadusd_sma5, eurusd_sma5, cadusd_sma10, eurusd_sma10,
-						cadusd_sd10, eurusd_sd10;
-	private TimeSeriesCollection cadds_sma5, eurds_sma5, cadds_sma10, eurds_sma10,
-									cadds_sd10, eurds_sd10;
-    private JFreeChart cadc_sma5, eurc_sma5, cadc_sma10, eurc_sma10,
-    					cadc_sd10, eurc_sd10;
-    private ChartPanel cadcp_sma5, eurcp_sma5, cadcp_sma10, eurcp_sma10,
-    					cadcp_sd10, eurcp_sd10;
-    private JPanel cadcon_sma5, eurcon_sma5, cadcon_sma10, eurcon_sma10,
-    				cadcon_sd10, eurcon_sd10;
+    					simple_moving_average_10_jpy, simple_moving_average_10_nzd,
+    					simple_moving_average_10_chf, simple_moving_average_10_gbp,
+    					simple_moving_average_10_aud,
+    					standard_deviation_10_cad, standard_deviation_10_eur,
+    					standard_deviation_10_jpy, standard_deviation_10_nzd,
+    					standard_deviation_10_gbp, standard_deviation_10_chf,
+    					standard_deviation_10_aud;
+	private TimeSeries cadusd_sma5, eurusd_sma5, jpyusd_sma5,nzdusd_sma5,chfusd_sma5,gbpusd_sma5, audusd_sma5,
+						cadusd_sma10, eurusd_sma10, jpyusd_sma10, nzdusd_sma10, gbpusd_sma10, chfusd_sma10, audusd_sma10,
+						cadusd_sd10, eurusd_sd10, jpyusd_sd10, nzdusd_sd10, chfusd_sd10, gbpusd_sd10, audusd_sd10;
+	private TimeSeriesCollection cadds_sma5, eurds_sma5, jpyds_sma5, nzdds_sma5, chfds_sma5, gbpds_sma5, audds_sma5,
+								cadds_sma10, eurds_sma10, jpyds_sma10, gbpds_sma10, nzdds_sma10, audds_sma10, chfds_sma10,
+									cadds_sd10, eurds_sd10, jpyds_sd10, nzdds_sd10, gbpds_sd10, audds_sd10, chfds_sd10;
+    private JFreeChart cadc_sma5, eurc_sma5, jpyc_sma5, audc_sma5, nzdc_sma5, gbpc_sma5, chfc_sma5,
+    					cadc_sma10, eurc_sma10, jpyc_sma10, nzdc_sma10, gbpc_sma10, audc_sma10, chfc_sma10,
+    					cadc_sd10, eurc_sd10, jpyc_sd10, nzdc_sd10, gbpc_sd10, chfc_sd10, audc_sd10;
+    private ChartPanel cadcp_sma5, eurcp_sma5, jpycp_sma5, nzdcp_sma5, chfcp_sma5, gbpcp_sma5, audcp_sma5,
+    					cadcp_sma10, eurcp_sma10, jpycp_sma10, nzdcp_sma10, chfcp_sma10, gbpcp_sma10, audcp_sma10,
+    					cadcp_sd10, eurcp_sd10, jpycp_sd10, nzdcp_sd10, chfcp_sd10, gbpcp_sd10, audcp_sd10;
+    private JPanel cadcon_sma5, eurcon_sma5, jpycon_sma5, nzdcon_sma5, gbpcon_sma5, chfcon_sma5, audcon_sma5,
+    				cadcon_sma10, eurcon_sma10, jpycon_sma10, nzdcon_sma10, gbpcon_sma10, chfcon_sma10, audcon_sma10,
+    				cadcon_sd10, eurcon_sd10, jpycon_sd10, nzdcon_sd10, gbpcon_sd10, chfcon_sd10, audcon_sd10;
     /** End Trend **/
     
     
@@ -222,7 +246,56 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         eurcon_price = new JPanel(new BorderLayout());
         eurcon_price.add(eurcp_price);
         eurcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+		/* JPYUSD */
+        jpyusd_price = new TimeSeries("JPYUSD", Millisecond.class);
+        jpyds_price = new TimeSeriesCollection(jpyusd_price);
+        jpyc_price = createChart(jpyds_price, "JPYUSD", "TIME", "PRICE");
+        jpycp_price = new ChartPanel(jpyc_price);
+        jpycon_price = new JPanel(new BorderLayout());
+        jpycon_price.add(jpycp_price);
+        jpycp_price.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+		/* CADUSD */
+        cadusd_price = new TimeSeries("CADUSD", Millisecond.class);
+        cadds_price = new TimeSeriesCollection(cadusd_price);
+        cadc_price = createChart(cadds_price, "CADUSD", "TIME", "PRICE");
+        cadcp_price = new ChartPanel(cadc_price);
+        cadcon_price = new JPanel(new BorderLayout());
+        cadcon_price.add(cadcp_price);
+        cadcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+		/* CADUSD */
+        cadusd_price = new TimeSeries("CADUSD", Millisecond.class);
+        cadds_price = new TimeSeriesCollection(cadusd_price);
+        cadc_price = createChart(cadds_price, "CADUSD", "TIME", "PRICE");
+        cadcp_price = new ChartPanel(cadc_price);
+        cadcon_price = new JPanel(new BorderLayout());
+        cadcon_price.add(cadcp_price);
+        cadcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+		/* CADUSD */
+        cadusd_price = new TimeSeries("CADUSD", Millisecond.class);
+        cadds_price = new TimeSeriesCollection(cadusd_price);
+        cadc_price = createChart(cadds_price, "CADUSD", "TIME", "PRICE");
+        cadcp_price = new ChartPanel(cadc_price);
+        cadcon_price = new JPanel(new BorderLayout());
+        cadcon_price.add(cadcp_price);
+        cadcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+		/* CADUSD */
+        cadusd_price = new TimeSeries("CADUSD", Millisecond.class);
+        cadds_price = new TimeSeriesCollection(cadusd_price);
+        cadc_price = createChart(cadds_price, "CADUSD", "TIME", "PRICE");
+        cadcp_price = new ChartPanel(cadc_price);
+        cadcon_price = new JPanel(new BorderLayout());
+        cadcon_price.add(cadcp_price);
+        cadcp_price.setPreferredSize(new java.awt.Dimension(500, 270));
+        
+        
+        
         /** END OF PRICE DATA **/
+        
         
         /** PRICE FRAMES **/
         prices = new JTabbedPane();
@@ -341,11 +414,56 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         bb_frame.setLocation (
                 (screenSize.width - sma_frame.getSize().width) / 2,
                 (screenSize.height - sma_frame.getSize().height) / 2);
+        
+        
+        
+        //Trend clustering
+        ArrayList<ArrayList<Double>> points = new ArrayList<ArrayList<Double>>();
+        ArrayList<Double> tmp = new ArrayList<Double>();
+        tmp.add(1.0); tmp.add(1.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(2.0); tmp.add(1.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(1.0); tmp.add(2.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(2.0); tmp.add(2.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(3.0); tmp.add(3.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(8.0); tmp.add(8.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(9.0); tmp.add(8.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(8.0); tmp.add(9.0);
+        points.add(tmp);
+        tmp = new ArrayList<Double>();
+        tmp.add(9.0); tmp.add(9.0);
+        points.add(tmp);
+
+        int k = 2;
+        
+        List<Vector> vectors = getPoints(points);
+        DistanceMeasure measure=new EuclideanDistanceMeasure();
+
+        
+        
+       
+
+        
+        
     	/** END OF TREND FRAMES **/
     	
     	
     	/** PREDICTION DATA **/
-    	
+        
+        
     	/** END OF PREDICTION DATA **/
     	/** PREDICTION FRAMES **/
         pred = new JTabbedPane();
@@ -484,6 +602,26 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 		return ave2;
 	}
     
+	
+	
+	  public static List<Vector> getPoints(ArrayList<ArrayList<Double>> raw) {
+		    List<Vector> points = new ArrayList<Vector>();
+		    for (int i = 0; i < raw.size(); i++) {
+		      Double[] fr = raw.get(i).toArray(new Double[raw.get(i).size()]);
+		      Vector vec = new RandomAccessSparseVector(fr.length);
+		      double[] fr2 = new double[fr.length];
+		      for(int j = 0; j<fr.length ;j++){
+		    	  fr2[j] = fr[j];
+		      }
+		      vec.assign(fr2);
+		      points.add(vec);
+		    }
+		    return points;
+		  }
+	
+	
+	
+	/* listener for menu bar */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		System.out.println(e.getSource());
