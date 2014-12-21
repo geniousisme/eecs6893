@@ -1,13 +1,21 @@
 package data_streamer.analytics;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarity;
+import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 
 public final class TradeRecommender
 {
     private static final int STATIC_RANGE = 10;
+    private static final long STARTING_UID = 1, STARTING_IID = 1;
 
     public static BuyDecision makeBuyDecision(List<Double> currentRange, List<Double> allTrades)
     {
@@ -15,14 +23,92 @@ public final class TradeRecommender
             return BuyDecision.HOLD;
         double diff = scoreDifference(currentRange);
         // Chunk the data
-        double numRanges = Math.ceil(allTrades.size() / 10);
         List<Double> diffScoreList = new ArrayList<Double>();
-        // Add the first bucket
-        for (int i = 0; i * 10 < numRanges && i < allTrades.size(); i += STATIC_RANGE)
+        for (int i = 0; i < allTrades.size(); i += STATIC_RANGE)
             diffScoreList.add(scoreDifference(allTrades.subList(i, Math.min(allTrades.size(), i
                 + STATIC_RANGE))));
+        List<Double> normalizedList = new ArrayList<Double>(diffScoreList.size() + 1);
+        normalizedList.add(diff);
+        normalizedList.addAll(diffScoreList);
+        // Write it out into a temporary file
+        File rangeFile = writeFileItemNormalizedDiffs(normalizedList);
+        // DataModel dm;
+        // try {
+        // dm = new FileDataModel(rangeFile);
+        // } catch (IOException e) {
+        // System.err.println("failed to make DataModel of " + rangeFile.getAbsolutePath() + ": "
+        // + e.getMessage());
+        // return null;
+        // }
+        // Get the item similarity
+        ItemSimilarity is = new FileItemSimilarity(rangeFile);
+        // ItemBasedRecommender rec = new GenericItemBasedRecommender(dm, is);
+        try {
+            // System.out.println(dm.getPreferencesForItem(STARTING_IID));
+            // System.out.println(dm.getPreferencesForItem(STARTING_IID + 1));
+            // System.out.println("ItemBasedRecommender: most similar items: "
+            // + rec.mostSimilarItems(STARTING_IID, 10));
+            // System.out.println("ItemBasedRecommender: data model: " + rec.getDataModel());
+            // System.out.println("ItemBasedRecommender: estimate preference: "
+            // + rec.estimatePreference(STARTING_UID, STARTING_IID));
+            System.out.println("ItemBasedRecommender: all similar items: "
+                + is.allSimilarItemIDs(STARTING_IID).length);
+        } catch (TasteException e) {
+            System.err.println("ItemSimilarity failed");
+            return null;
+        }
+        // System.out.println("Maximum preference: " + dm.getMaxPreference());
+        // System.out.println("Minimum preference: " + dm.getMinPreference());
         System.out.println("Diff: " + diff);
         return null;
+    }
+
+    private static File writeFileItemNormalizedDiffs(List<Double> diffScoreList)
+    {
+        // Make a temporary file
+        File tmpFile;
+        try {
+            tmpFile = File.createTempFile("diffList", ".csv");
+        } catch (IOException e) {
+            return null;
+        }
+        // Make a PrintWriter
+        PrintWriter out;
+        try {
+            out = new PrintWriter(tmpFile);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+
+        // We'll do two passes
+        List<Double> ratios = new ArrayList<Double>();
+        double maxAbsRatio = 0;
+        // First pass, compute the ratio between two values
+        for (int i = 0; i < diffScoreList.size(); i++) {
+            double diff1 = diffScoreList.get(i);
+            for (int j = i + 1; j < diffScoreList.size(); j++) {
+                double diff2 = diffScoreList.get(j);
+                double ratio = diff1 / diff2;
+                double absRatio = Math.abs(ratio);
+                if (absRatio > maxAbsRatio)
+                    maxAbsRatio = absRatio;
+                ratios.add(ratio);
+            }
+        }
+        // Second pass, normalize
+        long item1 = 1, item2 = 2;
+        for (Double ratio : ratios) {
+            out.println(item1 + "," + item2 + "," + ratio / maxAbsRatio);
+            if (item2 == diffScoreList.size()) {
+                item1++;
+                item2 = item1 + 1;
+            } else
+                item2++;
+        }
+        // System.out.println(tmpFile.getAbsolutePath());
+        tmpFile.deleteOnExit();
+        out.close();
+        return tmpFile;
     }
 
     /**
@@ -50,8 +136,13 @@ public final class TradeRecommender
             data[i][1] = range.get(i);
         }
         sr.addData(data);
-        System.out.println("sr intercept: " + sr.getIntercept());
+        // System.out.println("Diff: " + diff + ", sr intercept: " + sr.getIntercept() + ", R: "
+        // + sr.getR() + " R2: " + sr.getRSquare());
         diff *= sr.getRSquare();
+        // Use the original starting price as a weight, so that ranges with the same difference will
+        // differ based on where they started from
+        // diff += range.get(0);
+        System.out.println(diff);
         return diff;
     }
 

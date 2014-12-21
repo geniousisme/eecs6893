@@ -20,7 +20,7 @@ public final class SimpleStats
         MAX = "MAX", OTHER = "OTHER";
 
     public static final SimpleDateFormat TIME_FORMAT       = new SimpleDateFormat(
-        "yyyyMMdd hhmmssSSS");
+                                                               "yyyyMMdd hhmmssSSS");
 
     /**
      * Returns a list
@@ -32,7 +32,7 @@ public final class SimpleStats
      *         elements is a list of average prices in that interval. If the length of the list is
      *         zero, then something went wrong
      */
-    private static List<List<Double>> gatherTrades(Date start, Date end, Market market)
+    public static List<List<Double>> gatherTrades(Date start, Date end, Market market)
     {
         return gatherTrades(start, end, market, null);
     }
@@ -47,7 +47,7 @@ public final class SimpleStats
      *         elements is a list of average prices in that interval. If the length of the list is
      *         zero, then something went wrong
      */
-    private static List<List<Double>> gatherTrades(Date start, Date end, Market market, String ex)
+    public static List<List<Double>> gatherTrades(Date start, Date end, Market market, String ex)
     {
         List<List<Double>> ret = new ArrayList<List<Double>>();
         List<Double> minList = new ArrayList<Double>(), maxList = new ArrayList<Double>(), avgList =
