@@ -80,33 +80,31 @@ public final class TradeRecommender
             return null;
         }
 
-        // We'll do two passes
-        List<Double> ratios = new ArrayList<Double>();
-        double maxAbsRatio = 0;
-        // First pass, compute the ratio between two values
         for (int i = 0; i < diffScoreList.size(); i++) {
             double diff1 = diffScoreList.get(i);
+            // Compute the percent diffs and find the largest absolute diff
+            double maxAbsDiff = 0;
+            List<Double> percentDiffs = new ArrayList<>();
             for (int j = i + 1; j < diffScoreList.size(); j++) {
                 double diff2 = diffScoreList.get(j);
-                double ratio = diff1 / diff2;
-                double absRatio = Math.abs(ratio);
-                if (absRatio > maxAbsRatio)
-                    maxAbsRatio = absRatio;
-                ratios.add(ratio);
+                double percentDiff;
+                if (diff1 == 0 && diff2 == 0)
+                    // Well, there's no difference
+                    percentDiff = 0;
+                else if (diff1 == 0)
+                    percentDiff = (diff1 - diff2) / diff2;
+                else
+                    percentDiff = (diff1 - diff2) / diff1;
+                double absDiff = Math.abs(percentDiff);
+                if (absDiff > maxAbsDiff)
+                    maxAbsDiff = absDiff;
+                percentDiffs.add(percentDiff);
             }
+            for (int j = 0; j < percentDiffs.size(); j++)
+                out.println(i + 1 + "," + (i + j + 2) + "," + percentDiffs.get(j) / maxAbsDiff);
         }
-        // Second pass, normalize
-        long item1 = 1, item2 = 2;
-        for (Double ratio : ratios) {
-            out.println(item1 + "," + item2 + "," + ratio / maxAbsRatio);
-            if (item2 == diffScoreList.size()) {
-                item1++;
-                item2 = item1 + 1;
-            } else
-                item2++;
-        }
-        // System.out.println(tmpFile.getAbsolutePath());
-        tmpFile.deleteOnExit();
+        System.out.println(tmpFile.getAbsolutePath());
+        // tmpFile.deleteOnExit();
         out.close();
         return tmpFile;
     }
@@ -142,7 +140,6 @@ public final class TradeRecommender
         // Use the original starting price as a weight, so that ranges with the same difference will
         // differ based on where they started from
         // diff += range.get(0);
-        System.out.println(diff);
         return diff;
     }
 
