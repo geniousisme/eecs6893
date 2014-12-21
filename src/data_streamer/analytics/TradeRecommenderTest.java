@@ -1,10 +1,11 @@
-package data_streamer;
+package data_streamer.analytics;
 
 import java.io.IOException;
 
-public class Market_test
-{
+import data_streamer.Market;
 
+public class TradeRecommenderTest
+{
     public static void main(String[] args)
     {
         Market mkt = new Market("src/config/market.config", "src/config/data_config.txt", "./");
@@ -21,19 +22,5 @@ public class Market_test
             e.printStackTrace();
             System.exit(1);
         }
-        mkt.tick();
-        System.out.println(mkt.toString());
-        mkt.tick();
-        System.out.println(mkt.toString());
-        mkt.tick();
-        System.out.println(mkt.toString());
-        mkt.tick();
-        System.out.println(mkt.toString());
-        mkt.tick();
-        System.out.println(mkt.toString());
-        mkt.endLog();
-        System.out.println(mkt.toString());
-
     }
-
 }

@@ -1,4 +1,4 @@
-package data_streamer.math;
+package data_streamer.analytics;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
