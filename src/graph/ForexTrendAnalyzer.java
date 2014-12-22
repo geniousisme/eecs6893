@@ -961,7 +961,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         final XYPlot plot = result.getXYPlot();
         ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
-        axis.setFixedAutoRange(30000.0); //30 seconds
+        axis.setFixedAutoRange(60000.0); //30 seconds
         axis = plot.getRangeAxis();
         axis.setAutoRangeMinimumSize(.0000005);
         return result;
