@@ -1,6 +1,12 @@
 package data_streamer.fx;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,12 +24,19 @@ import data_streamer.fx.view.BarChartAveragesController;
 
 public class ForexTerminal extends Application
 {
-    public static final ExecutorService exec = Executors.newCachedThreadPool();
+    public static final ExecutorService exec      = Executors
+                                                      .newCachedThreadPool();
+
+    private Set<String>                 exchanges = new HashSet<>(Arrays
+                                                      .asList(new String[] {
+        "CADUSD", "EURUSD", "JPYUSD", "CHFUSD", "GBPUSD", "NZDUSD", "AUDUSD"}));
 
     private BorderPane                  rootLayout;
     private Stage                       primaryStage;
     private AnchorPane                  terminalView;
     private Market                      mkt;
+
+    private BarChartAveragesController  barChartController;
 
     public Stage getPrimaryStage()
     {
@@ -89,10 +102,9 @@ public class ForexTerminal extends Application
             loader
                 .setLocation(ForexTerminal.class
                     .getResource("/data_streamer/fx/view/BarChartAveragesView.fxml"));
-            AnchorPane page = (AnchorPane) loader.load();
+            ScrollPane sp = (ScrollPane) loader.load();
 
-            // Set the persons into the controller.
-            BarChartAveragesController controller = loader.getController();
+            barChartController = loader.getController();
             // The only child of terminalView is the SplitPane
             for (Node node : terminalView.getChildren()) {
                 SplitPane pane = (SplitPane) node;
@@ -101,18 +113,52 @@ public class ForexTerminal extends Application
                     if (id != null && id.equals("barChartPane")) {
                         // Found the pane, get the scroll pane
                         AnchorPane aPane = (AnchorPane) split;
-                        ScrollPane sPane =
-                            (ScrollPane) aPane.getChildren().get(0);
-                        sPane.setContent(page);
+                        AnchorPane.setTopAnchor(sp, 0.0);
+                        AnchorPane.setRightAnchor(sp, 0.0);
+                        AnchorPane.setBottomAnchor(sp, 0.0);
+                        AnchorPane.setLeftAnchor(sp, 0.0);
+                        aPane.getChildren().add(sp);
                     }
                 }
             }
-
-            controller.setMarketData(mkt);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void runMarket()
+    {
+        Runnable updateMarket = () -> {
+            while (true) {
+                try {
+                    // System.out.println(Thread.currentThread() + ": "
+                    // + System.currentTimeMillis());
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            break;
+        } // run it 20x fast
+        mkt.tick(); // increments by 1 second
+        Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur =
+            mkt.getEx().getCurrent();
+        if (cur != null && cur.get("PRICE") != null) {
+            Map<String, Double> avgMap = new HashMap<>();
+            for (String ex : exchanges) {
+                Dictionary<String, String> priceDict = cur.get("PRICE").get(ex);
+                if (priceDict != null) {
+                    Double avg;
+                    try {
+                        avg = Double.parseDouble(priceDict.get("AVERAGE"));
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+                    avgMap.put(ex, avg);
+                }
+            }
+            barChartController.updateBars(avgMap);
+        }
+    }
+}       ;
+        exec.execute(updateMarket);
     }
 
     @Override
@@ -125,6 +171,8 @@ public class ForexTerminal extends Application
 
         showTerminalView();
         showExchangeBarGraph();
+
+        runMarket();
     }
 
     @Override

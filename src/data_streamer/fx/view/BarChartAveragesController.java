@@ -1,67 +1,95 @@
 package data_streamer.fx.view;
 
-import java.util.Arrays;
-import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
-import data_streamer.Market;
-import data_streamer.fx.ForexTerminal;
+import javafx.scene.chart.XYChart;
+import javafx.util.Duration;
 
 public class BarChartAveragesController
 {
+    private static long                    UPDATE_INTERVAL = 500;
 
     @FXML
-    private BarChart<String, Double> currencyBarGraph;
+    private BarChart<String, Double>       currencyBarGraph;
 
     @FXML
-    private CategoryAxis             xAxis;
+    private CategoryAxis                   xAxis;
 
-    private ObservableList<String>   forexMarkets = FXCollections
-                                                      .observableArrayList();
+    private XYChart.Series<String, Double> xSeries;
 
-    private String[]                 exchanges;
+    private ObservableList<String>         forexMarkets    =
+                                                               FXCollections
+                                                                   .observableArrayList();
+    private Map<String, Integer>           forexSet        = new HashMap<>();
+
+    private long                           lastUpdated     = 0;
+
+    private AtomicBoolean                  isUpdatingBars  = new AtomicBoolean(
+                                                               false);
+
+    private Timeline                       tl;
 
     @FXML
     private void initialize()
     {
-        exchanges =
-            new String[] {"CADUSD", "EURUSD", "JPYUSD", "CHFUSD", "GBPUSD",
-                "NZDUSD", "AUDUSD"};
-        // Convert it to a list and add it to our ObservableList of months.
-        forexMarkets.addAll(Arrays.asList(exchanges));
-
         // Assign the month names as categories for the horizontal axis.
         xAxis.setCategories(forexMarkets);
+        xSeries = new XYChart.Series<>();
+        currencyBarGraph.getData().add(xSeries);
+        tl = new Timeline();
     }
 
-    public void setMarketData(final Market mkt)
+    public void updateBars(Map<String, Double> newValues)
     {
-        Runnable updateMarket =
-            () -> {
-                while (true) {
-                    try {
-                        System.out.println(Thread.currentThread() + ": "
-                            + System.currentTimeMillis());
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    } // run it 20x fast
-                    mkt.tick(); // increments by 1 second
-                    Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur =
-                        mkt.getEx().getCurrent();
-                    if (cur != null && cur.get("PRICE") != null)
-                        for (String ex : exchanges)
-                            if (cur.get("PRICE").get(ex) != null)
-                                System.out.println(Double.parseDouble(cur.get(
-                                    "PRICE").get(ex).get("AVERAGE")));
-                }
-            };
-
-        ForexTerminal.exec.execute(updateMarket);
+        if (System.currentTimeMillis() - lastUpdated < UPDATE_INTERVAL)
+            return;
+        if (isUpdatingBars.getAndSet(true))
+            return;
+        lastUpdated = System.currentTimeMillis();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                for (Map.Entry<String, Double> values : newValues.entrySet())
+                    if (!forexSet.containsKey(values.getKey())) {
+                        // Add a new bar
+                        forexSet.put(values.getKey(), forexMarkets.size());
+                        forexMarkets.add(values.getKey());
+                        xSeries.getData().add(
+                            new XYChart.Data<String, Double>(values.getKey(),
+                                values.getValue()));
+                    }
+                tl.getKeyFrames().add(
+                    new KeyFrame(Duration.millis(3 * UPDATE_INTERVAL
+                        / (double) 4), new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event)
+                        {
+                            for (XYChart.Data<String, Double> data : xSeries
+                                .getData())
+                                if (newValues.containsKey(data.getXValue()))
+                                    // System.out.println("Old value: "
+                                    // + data.getYValue() + ", new value: "
+                                    // + newValues.get(data.getXValue()));
+                                    data.setYValue(newValues.get(data
+                                        .getXValue()));
+                        }
+                    }));
+                tl.play();
+            }
+        });
+        isUpdatingBars.set(false);
     }
 }
