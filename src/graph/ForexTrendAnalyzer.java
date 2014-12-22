@@ -706,9 +706,10 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     	 * 
     	 ****************/
         
-        while(true) {
+        while(mkt.running()) {
         	try { 
-        		Thread.sleep(10); //run it 20x fast
+        		
+        		Thread.sleep(1); //run it fast
         		mkt.tick(); //increments by 1 second
         		Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur = mkt.getEx().getCurrent();
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null) {
@@ -772,7 +773,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(cad.subList(0, TradeRecommender.STATIC_RANGE),
         	                    cad.subList(TradeRecommender.STATIC_RANGE, cad.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	cad_jl.setText("CADUSD BUY");
@@ -788,14 +789,14 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(cad.subList(0, TradeRecommender.STATIC_RANGE),
         	                    cad.subList(TradeRecommender.STATIC_RANGE, cad.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		if(eur.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(eur.subList(0, TradeRecommender.STATIC_RANGE),
         	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	eur_jl.setText("EURUSD BUY");
@@ -811,14 +812,14 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(eur.subList(0, TradeRecommender.STATIC_RANGE),
         	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		if(chf.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(chf.subList(0, TradeRecommender.STATIC_RANGE),
         	                    chf.subList(TradeRecommender.STATIC_RANGE, chf.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	chf_jl.setText("CHFUSD BUY");
@@ -834,14 +835,14 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(chf.subList(0, TradeRecommender.STATIC_RANGE),
         	                    chf.subList(TradeRecommender.STATIC_RANGE, chf.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		if(gbp.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(gbp.subList(0, TradeRecommender.STATIC_RANGE),
         	                		gbp.subList(TradeRecommender.STATIC_RANGE, gbp.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	gbp_jl.setText("GBPUSD BUY");
@@ -857,14 +858,14 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(gbp.subList(0, TradeRecommender.STATIC_RANGE),
         	                		gbp.subList(TradeRecommender.STATIC_RANGE, gbp.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		if(jpy.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(jpy.subList(0, TradeRecommender.STATIC_RANGE),
         	                		jpy.subList(TradeRecommender.STATIC_RANGE, jpy.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	jpy_jl.setText("JPYUSD BUY");
@@ -880,14 +881,14 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(jpy.subList(0, TradeRecommender.STATIC_RANGE),
         	                		jpy.subList(TradeRecommender.STATIC_RANGE, jpy.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		if(aud.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(aud.subList(0, TradeRecommender.STATIC_RANGE),
         	                		aud.subList(TradeRecommender.STATIC_RANGE, aud.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	aud_jl.setText("AUDUSD BUY");
@@ -903,14 +904,14 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(aud.subList(0, TradeRecommender.STATIC_RANGE),
         	                		aud.subList(TradeRecommender.STATIC_RANGE, aud.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		if(nzd.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(nzd.subList(0, TradeRecommender.STATIC_RANGE),
         	                		nzd.subList(TradeRecommender.STATIC_RANGE, nzd.size()));
-        	            System.out.println("Buy decision: " + buyDecision);
+        	            //System.out.println("Buy decision: " + buyDecision);
         	            if(buyDecision != null){
 	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
 	        	            	nzd_jl.setText("NZDUSD BUY");
@@ -926,7 +927,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(nzd.subList(0, TradeRecommender.STATIC_RANGE),
         	                		nzd.subList(TradeRecommender.STATIC_RANGE, nzd.size()));
-        	            System.out.println("Trade duration: " + decisionTicks);
+        	            //System.out.println("Trade duration: " + decisionTicks);
         		}
         		
         		

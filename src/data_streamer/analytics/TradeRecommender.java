@@ -165,7 +165,7 @@ public final class TradeRecommender
                     (int) (sp.item2 - 1) * STATIC_RANGE)));
             // If the two scores aren't in the same direction
             if (!isSameDirection(spScore, currentScore)) {
-                System.err.println("Not in same direction");
+                //System.err.println("Not in same direction");
                 continue;
             }
             // The scores are too dissimilar
