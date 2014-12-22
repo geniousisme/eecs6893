@@ -8,8 +8,9 @@ public class Market_test {
 		Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data_streamer/market.config",
 				"/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data_streamer/data_config.txt",
 				"./");
+		Market mkt2 = new Market(" ", " ", "");
 		
-	
+		
 		try {
 			mkt.loadConfigs();
 		} catch (Exception e) {
