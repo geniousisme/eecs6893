@@ -177,8 +177,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 	 */
 	public void run(){
 
-		Market mkt = new Market("/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/market.config",
-				"/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/config/data_config.txt",
+		Market mkt = new Market("src/config/market.config",
+				"src/config/data_config.txt",
 				"./");
 		
 	

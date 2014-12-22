@@ -1,7 +1,7 @@
-CADUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/CADUSD_20140801.csv
-EURUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/EURUSD_20140801.csv
-JPYUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/JPYUSD_20140801.csv
-NZDUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/NZDUSD_20140801.csv
-CHFUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/CHFUSD_20140801.csv
-GBPUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/GBPUSD_20140801.csv
-AUDUSD=/Users/theocean154/Documents/School_files/College/Programs/eclipse/bda/src/data/AUDUSD_20140801.csv
+CADUSD=src/data/CADUSD_20140801.csv
+EURUSD=src/data/EURUSD_20140801.csv
+JPYUSD=src/data/JPYUSD_20140801.csv
+NZDUSD=src/data/NZDUSD_20140801.csv
+CHFUSD=src/data/CHFUSD_20140801.csv
+GBPUSD=src/data/GBPUSD_20140801.csv
+AUDUSD=src/data/AUDUSD_20140801.csv
