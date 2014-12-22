@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <SplitPane dividerPositions="0.7" orientation="VERTICAL" prefHeight="208.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.7" orientation="VERTICAL" prefHeight="208.0" prefWidth="1280.0" styleClass="background" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="511.0" prefWidth="1278.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="511.0" prefWidth="1278.0" styleClass="background">
                <children>
-                  <SplitPane dividerPositions="0.2" prefHeight="503.0" prefWidth="1280.0" AnchorPane.bottomAnchor="-0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <SplitPane dividerPositions="0.2" prefHeight="503.0" prefWidth="1280.0" styleClass="background" AnchorPane.bottomAnchor="-0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" styleClass="background">
                            <children>
                               <TabPane fx:id="statisticTabs" layoutX="26.0" layoutY="14.0" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <tabs>
                                   <Tab closable="false" text="Averages">
                                        <content>
-                                          <ScrollPane prefViewportHeight="460.0" prefViewportWidth="252.0">
+                                          <ScrollPane fitToWidth="true" prefViewportHeight="460.0" prefViewportWidth="252.0">
                                              <content>
                                                 <TableView>
                                                   <columns>
@@ -32,28 +32,49 @@
                                           </ScrollPane>
                                        </content>
                                     </Tab>
-                                  <Tab closable="false" text="Variance" />
-                                    <Tab closable="false" text="Trends" />
+                                  <Tab closable="false" text="Variance">
+                                       <content>
+                                          <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
+                                             <content>
+                                                <TableView>
+                                                  <columns>
+                                                    <TableColumn prefWidth="75.0" text="Exchange" />
+                                                    <TableColumn prefWidth="75.0" text="Latest 10" />
+                                                  </columns>
+                                                </TableView>
+                                             </content>
+                                          </ScrollPane>
+                                       </content></Tab>
+                                    <Tab closable="false" text="Trends">
+                                       <content>
+                                          <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
+                                             <content>
+                                                <TableView>
+                                                  <columns>
+                                                    <TableColumn prefWidth="75.0" text="Exchange" />
+                                                    <TableColumn prefWidth="75.0" text="Buy/Sell" />
+                                                      <TableColumn prefWidth="75.0" text="Duration" />
+                                                  </columns>
+                                                </TableView>
+                                             </content>
+                                          </ScrollPane>
+                                       </content></Tab>
                                 </tabs>
                               </TabPane>
                            </children>
                         </AnchorPane>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="136.0" prefWidth="884.0">
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="136.0" prefWidth="884.0" styleClass="background">
                            <children>
-                              <ScrollPane fx:id="chartScrollPane" layoutX="327.0" layoutY="49.0" pannable="true" prefHeight="497.0" prefWidth="1017.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ScrollPane fx:id="chartScrollPane" fitToWidth="true" layoutX="327.0" layoutY="49.0" pannable="true" prefHeight="497.0" prefWidth="1017.0" styleClass="background" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children>
                         </AnchorPane>
                     </items>
                   </SplitPane>
                </children>
             </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+          <AnchorPane fx:id="barChartPane" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" styleClass="background">
                <children>
-                  <ScrollPane layoutX="321.0" layoutY="-3.0" prefHeight="212.0" prefWidth="1278.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <content>
-                        <AnchorPane />
-                     </content>
-                  </ScrollPane>
+                  <ScrollPane fitToHeight="true" layoutX="321.0" layoutY="-3.0" prefHeight="212.0" prefWidth="1278.0" styleClass="background" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
             </AnchorPane>
         </items>

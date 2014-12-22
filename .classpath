@@ -25,5 +25,7 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-math/javadocs/api-3.3/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="lib" path="rsc/jfxrt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
