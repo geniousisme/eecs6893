@@ -1,7 +1,9 @@
 package graph;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,13 +13,13 @@ import java.util.Dictionary;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.apache.mahout.cf.taste.model.DataModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -27,15 +29,8 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
-import org.apache.mahout.clustering.classify.WeightedVectorWritable;
-import org.apache.mahout.clustering.kmeans.KMeansDriver;
-import org.apache.mahout.clustering.kmeans.Kluster;
-import org.apache.mahout.common.HadoopUtil;
-import org.apache.mahout.common.distance.DistanceMeasure;
-import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
 
 import data_streamer.Market;
 import data_streamer.analytics.TradeRecommender;
@@ -54,15 +49,19 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private JMenu display, trends_m, analytics;
+	private JMenu display, trends_m;
 	private JMenuItem prices_mi, sma_mi, sd_mi, bb_mi, ema_mi,
 					predictions_mi, exitMenuItem;
 	private JMenu exitMenu;	
 	private JFrame sma_frame, sd_frame, ema_frame, bb_frame,
 					pframe, pdframe;
-    private JTabbedPane prices, sma, sd, bb, ema, pred;
+    private JTabbedPane prices, sma, sd, bb, ema;
+    private JPanel pred;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	
+    private JLabel eur_jl, cad_jl, chf_jl, nzd_jl, jpy_jl, aud_jl, gbp_jl;
+    
+    
     /** Price **/
 	private TimeSeries cadusd_price, eurusd_price, jpyusd_price, nzdusd_price, gbpusd_price, chfusd_price, audusd_price;
 	private TimeSeriesCollection cadds_price, eurds_price, jpyds_price, nzdds_price, gbpds_price, chfds_price, audds_price;
@@ -104,7 +103,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     private JPanel cadcon_sma5, eurcon_sma5, jpycon_sma5, nzdcon_sma5, gbpcon_sma5, chfcon_sma5, audcon_sma5,
     				cadcon_sma10, eurcon_sma10, jpycon_sma10, nzdcon_sma10, gbpcon_sma10, chfcon_sma10, audcon_sma10,
     				cadcon_sd10, eurcon_sd10, jpycon_sd10, nzdcon_sd10, gbpcon_sd10, chfcon_sd10, audcon_sd10,
-    				cadcon_bb10;
+    				cadcon_bb10,
+    				gbp_pp;
     /** End Trend **/
     
     
@@ -115,7 +115,6 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 		display = new JMenu("Display");
 		exitMenu = new JMenu("Exit");
 		trends_m = new JMenu("Trends");
-		analytics = new JMenu("Analytics");
 
 		
 		prices_mi = new JMenuItem("Prices");
@@ -627,7 +626,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         
     	/** END OF PREDICTION DATA **/
     	/** PREDICTION FRAMES **/
-        pred = new JTabbedPane();
+        pred = new JPanel();
+        pred.setSize(1425, 100);
         pdframe = new JFrame();
         pdframe.setDefaultCloseOperation(HIDE_ON_CLOSE);
         pdframe.getContentPane().add (pred);
@@ -636,6 +636,66 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         pdframe.setLocation (
           (screenSize.width - pdframe.getSize().width) / 2,
           (screenSize.height - pdframe.getSize().height) / 2);
+        pdframe.setSize(new Dimension(1425, 65));
+        
+        eur_jl = new JLabel("EURUSD HOLD");
+        jpy_jl = new JLabel("JPYUSD HOLD");
+        chf_jl = new JLabel("CHFUSD HOLD");
+        cad_jl = new JLabel("CADUSD HOLD");
+        aud_jl = new JLabel("AUDUSD HOLD");
+        gbp_jl = new JLabel("GBPUSD HOLD");
+        nzd_jl = new JLabel("NZDUSD HOLD");
+        
+        eur_jl.setOpaque(true);
+        jpy_jl.setOpaque(true);
+        cad_jl.setOpaque(true);
+        chf_jl.setOpaque(true);
+        gbp_jl.setOpaque(true);
+        nzd_jl.setOpaque(true);
+        aud_jl.setOpaque(true);
+        
+        eur_jl.setBackground(Color.YELLOW);
+        jpy_jl.setBackground(Color.YELLOW);
+        cad_jl.setBackground(Color.YELLOW);
+        chf_jl.setBackground(Color.YELLOW);
+        nzd_jl.setBackground(Color.YELLOW);
+        gbp_jl.setBackground(Color.YELLOW);
+        aud_jl.setBackground(Color.YELLOW);
+
+        eur_jl.setSize(200, 100);
+        jpy_jl.setSize(200, 100);
+        cad_jl.setSize(200, 100);
+        chf_jl.setSize(200, 100);
+        nzd_jl.setSize(200, 100);
+        gbp_jl.setSize(200, 100);
+        aud_jl.setSize(200, 100);
+
+        
+        Font labelFont = eur_jl.getFont();
+        String labelText = eur_jl.getText();
+
+        int stringWidth = eur_jl.getFontMetrics(labelFont).stringWidth(labelText);
+        int componentWidth = eur_jl.getWidth();
+        double widthRatio = (double)componentWidth / (double)stringWidth;
+        int newFontSize = (int)(labelFont.getSize() * widthRatio);
+        int componentHeight = eur_jl.getHeight();
+        int fontSizeToUse = Math.min(newFontSize, componentHeight);
+        eur_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+        jpy_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+        cad_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+        chf_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+        nzd_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+        gbp_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+        aud_jl.setFont(new Font(labelFont.getName(), Font.PLAIN, fontSizeToUse));
+
+        pred.add(eur_jl);
+        pred.add(jpy_jl);
+        pred.add(cad_jl);
+        pred.add(chf_jl);
+        pred.add(nzd_jl);
+        pred.add(gbp_jl);
+        pred.add(aud_jl);
+        
     	/** END OF PREDICTION FRAMES **/
     	
     	
@@ -724,6 +784,18 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	                TradeRecommender.makeTradeDecision(eur.subList(0, TradeRecommender.STATIC_RANGE),
         	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
         	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	eur_jl.setText("EURUSD BUY");
+	        	            	eur_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	eur_jl.setText("EURUSD SELL");
+	        	            	eur_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	eur_jl.setText("EURUSD HOLD");
+	        	            	eur_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(eur.subList(0, TradeRecommender.STATIC_RANGE),
         	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
@@ -876,7 +948,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
 		} else if(e.getSource() == bb_mi){
 			bb_frame.setVisible(true);
 		} else if(e.getSource() == predictions_mi){
-			
+	        pdframe.setVisible(true);
 		}
 	}
     
