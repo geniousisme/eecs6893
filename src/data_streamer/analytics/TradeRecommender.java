@@ -23,9 +23,9 @@ public final class TradeRecommender
     public static final double ABS_HOLD_SCORE = 1e-5;
     public static final double DECISION_RATIO = 0.5;
 
-    public static PriorityQueue<SimilarityPair> retrieveSimilarity(List<Double> currentRange,
-        List<Double> allTrades)
-        {
+    public static PriorityQueue<SimilarityPair> retrieveSimilarity(
+        List<Double> currentRange, List<Double> allTrades)
+    {
         if (allTrades.size() < STATIC_RANGE)
             return null;
         double diff = scoreDifference(currentRange);
@@ -33,12 +33,14 @@ public final class TradeRecommender
         List<Double> diffScoreList = new ArrayList<Double>();
         for (int i = 0; i < allTrades.size(); i += STATIC_RANGE) {
             double score =
-                scoreDifference(allTrades.subList(i, Math.min(allTrades.size(), i + STATIC_RANGE)));
-            // if (i / STATIC_RANGE == 303)
-            // System.out.println("304 score: " + score);
+                scoreDifference(allTrades.subList(i, Math.min(allTrades.size(),
+                    i + STATIC_RANGE)));
+            if (i / STATIC_RANGE == 302)
+                System.out.println("304 score: " + score);
             diffScoreList.add(score);
         }
-        List<Double> normalizedList = new ArrayList<Double>(diffScoreList.size() + 1);
+        List<Double> normalizedList =
+            new ArrayList<Double>(diffScoreList.size() + 1);
         normalizedList.add(diff);
         normalizedList.addAll(diffScoreList);
         // Write it out into a temporary file
@@ -47,8 +49,8 @@ public final class TradeRecommender
         try {
             dm = new FileDataModel(rangeFile);
         } catch (IOException e) {
-            System.err.println("failed to make DataModel of " + rangeFile.getAbsolutePath() + ": "
-                + e.getMessage());
+            System.err.println("failed to make DataModel of "
+                + rangeFile.getAbsolutePath() + ": " + e.getMessage());
             return null;
         }
         // Get the item similarity
@@ -76,11 +78,13 @@ public final class TradeRecommender
         for (int i = 0; i < itemIDs.length; i++)
             pq.add(new SimilarityPair(itemIDs[i], itemSimilarities[i]));
         return pq;
-        }
+    }
 
-    public static long decisionTicks(List<Double> currentRange, List<Double> allTrades)
+    public static long decisionTicks(List<Double> currentRange,
+        List<Double> allTrades)
     {
-        PriorityQueue<SimilarityPair> simQueue = retrieveSimilarity(currentRange, allTrades);
+        PriorityQueue<SimilarityPair> simQueue =
+            retrieveSimilarity(currentRange, allTrades);
         if (simQueue == null)
             return 0;
 
@@ -91,9 +95,11 @@ public final class TradeRecommender
             SimilarityPair sp = simQueue.poll();
             // Get the scores
             double spScore =
-                scoreDifference(allTrades.subList((int) (sp.item2 - 1) * STATIC_RANGE, Math.min(
-                    allTrades.size(), (int) sp.item2 * STATIC_RANGE)));
-            // We don't care about direction, so much as the trend, represented by the score
+                scoreDifference(allTrades.subList((int) (sp.item2 - 2)
+                    * STATIC_RANGE, Math.min(allTrades.size(),
+                    (int) (sp.item2 - 1) * STATIC_RANGE)));
+            // We don't care about direction, so much as the trend, represented
+            // by the score
             // if (!isSameDirection(spScore, currentScore))
             // continue;
             // The scores are too dissimilar
@@ -103,22 +109,27 @@ public final class TradeRecommender
             double futurePastScore;
             try {
                 futurePastScore =
-                    scoreDifference(allTrades.subList((int) sp.item2 * STATIC_RANGE, Math.min(
-                        allTrades.size(), (int) (sp.item2 + 1) * STATIC_RANGE)));
+                    scoreDifference(allTrades.subList((int) (sp.item2 - 1)
+                        * STATIC_RANGE, Math.min(allTrades.size(),
+                        (int) (sp.item2) * STATIC_RANGE)));
             } catch (IndexOutOfBoundsException e) {
+                continue;
+            } catch (IllegalArgumentException e){
                 continue;
             }
             numRanges++;
             System.out.println("Future score: " + futurePastScore);
             System.out.println(sp);
-            System.out.println("Item 1: " + currentScore + ", item 2: " + spScore);
+            System.out.println("Item 1: " + currentScore + ", item 2: "
+                + spScore);
             // If the score continues in the same direction, increment ticks
             long ticks = STATIC_RANGE / 2;
-            int pos = 1;
+            int pos = 0;
             while ((sp.item2 + pos) * STATIC_RANGE < allTrades.size()) {
                 double futurePastFutureScore =
-                    scoreDifference(allTrades.subList((int) (sp.item2 + pos) * STATIC_RANGE, Math
-                        .min(allTrades.size(), (int) (sp.item2 + pos + 1) * STATIC_RANGE)));
+                    scoreDifference(allTrades.subList((int) (sp.item2 + pos)
+                        * STATIC_RANGE, Math.min(allTrades.size(),
+                        (int) (sp.item2 + pos + 1) * STATIC_RANGE)));
                 if (isSameDirection(futurePastFutureScore, futurePastScore))
                     ticks += STATIC_RANGE;
                 else
@@ -134,9 +145,11 @@ public final class TradeRecommender
         return Math.round(tickSum / (double) tickList.size());
     }
 
-    public static BuyDecision makeTradeDecision(List<Double> currentRange, List<Double> allTrades)
+    public static BuyDecision makeTradeDecision(List<Double> currentRange,
+        List<Double> allTrades)
     {
-        PriorityQueue<SimilarityPair> simQueue = retrieveSimilarity(currentRange, allTrades);
+        PriorityQueue<SimilarityPair> simQueue =
+            retrieveSimilarity(currentRange, allTrades);
         if (simQueue == null)
             return null;
 
@@ -147,11 +160,14 @@ public final class TradeRecommender
             SimilarityPair sp = simQueue.poll();
             // Get the scores
             double spScore =
-                scoreDifference(allTrades.subList((int) (sp.item2 - 1) * STATIC_RANGE, Math.min(
-                    allTrades.size(), (int) sp.item2 * STATIC_RANGE)));
+                scoreDifference(allTrades.subList((int) (sp.item2 - 2)
+                    * STATIC_RANGE, Math.min(allTrades.size(),
+                    (int) (sp.item2 - 1) * STATIC_RANGE)));
             // If the two scores aren't in the same direction
-            if (!isSameDirection(spScore, currentScore))
-                continue;
+            // if (!isSameDirection(spScore, currentScore)){
+            // System.err.println("Not in same direction");
+            // continue;
+            // }
             // The scores are too dissimilar
             if (sp.similarity < MIN_SIMILARITY)
                 continue;
@@ -159,8 +175,9 @@ public final class TradeRecommender
             double futurePastScore;
             try {
                 futurePastScore =
-                    scoreDifference(allTrades.subList((int) sp.item2 * STATIC_RANGE, Math.min(
-                        allTrades.size(), (int) (sp.item2 + 1) * STATIC_RANGE)));
+                    scoreDifference(allTrades.subList((int) (sp.item2 - 1)
+                        * STATIC_RANGE, Math.min(allTrades.size(),
+                        (int) (sp.item2) * STATIC_RANGE)));
             } catch (IndexOutOfBoundsException e) {
                 continue;
             } catch (IllegalArgumentException e) {
@@ -169,7 +186,8 @@ public final class TradeRecommender
             numRanges++;
             System.out.println("Future score: " + futurePastScore);
             System.out.println(sp);
-            System.out.println("Item 1: " + currentScore + ", item 2: " + spScore);
+            System.out.println("Item 1: " + currentScore + ", item 2: "
+                + spScore);
             // If the futurePastScore is going up buy
             if (futurePastScore > ABS_HOLD_SCORE)
                 numBuy++;
@@ -188,14 +206,15 @@ public final class TradeRecommender
 
     private static boolean isSameDirection(double spScore, double currentScore)
     {
-        if (spScore == 0 && currentScore == 0 || spScore > 0 && currentScore > 0 || spScore < 0
-            && currentScore < 0)
+        if (spScore == 0 && currentScore == 0 || spScore > 0
+            && currentScore > 0 || spScore < 0 && currentScore < 0)
             return true;
         else
             return false;
     }
 
-    private static File writeFileItemNormalizedDiffs(List<Double> diffScoreList)
+    private static File
+        writeFileItemNormalizedDiffs(List<Double> diffScoreList)
     {
         // Make a temporary file
         File tmpFile;
@@ -233,7 +252,8 @@ public final class TradeRecommender
                 percentDiffs.add(percentDiff);
             }
             for (int j = 0; j < percentDiffs.size(); j++)
-                out.println(i + 1 + "," + (i + j + 2) + "," + percentDiffs.get(j) / maxAbsDiff);
+                out.println(i + 1 + "," + (i + j + 2) + ","
+                    + percentDiffs.get(j) / maxAbsDiff);
         }
         // System.out.println(tmpFile.getAbsolutePath());
         tmpFile.deleteOnExit();
@@ -242,10 +262,11 @@ public final class TradeRecommender
     }
 
     /**
-     * Scores the difference in prices among this range. May apply some regressions to the range to
-     * determine some normalized score.
+     * Scores the difference in prices among this range. May apply some
+     * regressions to the range to determine some normalized score.
      *
-     * @param range list of doubles, sorted from newest (0) to oldest (range.size() - 1).
+     * @param range list of doubles, sorted from newest (0) to oldest
+     *        (range.size() - 1).
      * @return
      */
     public static double scoreDifference(List<Double> range)
