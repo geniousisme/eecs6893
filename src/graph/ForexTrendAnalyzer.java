@@ -38,6 +38,8 @@ import org.apache.mahout.common.distance.DistanceMeasure;
 import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
 
 import data_streamer.Market;
+import data_streamer.analytics.TradeRecommender;
+import data_streamer.analytics.TradeRecommender.BuyDecision;
 
 /**
  * A demonstration application showing a time series chart where you can dynamically add
@@ -81,7 +83,8 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
     					standard_deviation_10_cad, standard_deviation_10_eur,
     					standard_deviation_10_jpy, standard_deviation_10_nzd,
     					standard_deviation_10_gbp, standard_deviation_10_chf,
-    					standard_deviation_10_aud;
+    					standard_deviation_10_aud,
+    					cad, eur, jpy, nzd, chf, gbp, aud;
 	private TimeSeries cadusd_sma5, eurusd_sma5, jpyusd_sma5,nzdusd_sma5,chfusd_sma5,gbpusd_sma5, audusd_sma5,
 						cadusd_sma10, eurusd_sma10, jpyusd_sma10, nzdusd_sma10, gbpusd_sma10, chfusd_sma10, audusd_sma10,
 						cadusd_sd10, eurusd_sd10, jpyusd_sd10, nzdusd_sd10, chfusd_sd10, gbpusd_sd10, audusd_sd10,
@@ -532,6 +535,13 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         cadcp_bb10.setPreferredSize(new java.awt.Dimension(500, 270));
         
         
+        cad = new ArrayList<Double>();
+        aud = new ArrayList<Double>();
+        eur = new ArrayList<Double>();
+        nzd = new ArrayList<Double>();
+        jpy = new ArrayList<Double>();
+        gbp = new ArrayList<Double>();
+        chf = new ArrayList<Double>();
         
     	/** END OF TREND DATA **/
         
@@ -638,7 +648,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         
         while(true) {
         	try { 
-        		Thread.sleep(100); //run it 10x fast
+        		Thread.sleep(10); //run it 20x fast
         		mkt.tick(); //increments by 1 second
         		Dictionary<String, Dictionary<String, Dictionary<String, String>>> cur = mkt.getEx().getCurrent();
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CADUSD")!=null) {
@@ -647,6 +657,7 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         			addPointSMA(cadusd_sma10, simple_moving_average_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
         			addPointSD(cadusd_sd10, standard_deviation_10_cad, Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")), 10);
         			addPointBB(cadusd_bb10_h, cadusd_bb10_l, standard_deviation_10_cad);
+        			cad.add(Double.parseDouble(cur.get("PRICE").get("CADUSD").get("AVERAGE")));
 
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("EURUSD")!=null) {
@@ -654,37 +665,73 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         			addPointSMA(eurusd_sma5, simple_moving_average_5_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 5);
         			addPointSMA(eurusd_sma10, simple_moving_average_10_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 10);
         			addPointSD(eurusd_sd10, standard_deviation_10_eur, Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")), 10);
+        			eur.add(Double.parseDouble(cur.get("PRICE").get("EURUSD").get("AVERAGE")));
+
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("JPYUSD")!=null) {
         			addPoint(jpyusd_price, Double.parseDouble(cur.get("PRICE").get("JPYUSD").get("AVERAGE")));
         			addPointSMA(jpyusd_sma5, simple_moving_average_5_jpy, Double.parseDouble(cur.get("PRICE").get("JPYUSD").get("AVERAGE")), 5);
         			addPointSMA(jpyusd_sma10, simple_moving_average_10_jpy, Double.parseDouble(cur.get("PRICE").get("JPYUSD").get("AVERAGE")), 10);
         			addPointSD(jpyusd_sd10, standard_deviation_10_jpy, Double.parseDouble(cur.get("PRICE").get("JPYUSD").get("AVERAGE")), 10);
+        			jpy.add(Double.parseDouble(cur.get("PRICE").get("JPYUSD").get("AVERAGE")));
+
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("NZDUSD")!=null) {
         			addPoint(nzdusd_price, Double.parseDouble(cur.get("PRICE").get("NZDUSD").get("AVERAGE")));
         			addPointSMA(nzdusd_sma5, simple_moving_average_5_nzd, Double.parseDouble(cur.get("PRICE").get("NZDUSD").get("AVERAGE")), 5);
         			addPointSMA(nzdusd_sma10, simple_moving_average_10_nzd, Double.parseDouble(cur.get("PRICE").get("NZDUSD").get("AVERAGE")), 10);
         			addPointSD(nzdusd_sd10, standard_deviation_10_nzd, Double.parseDouble(cur.get("PRICE").get("NZDUSD").get("AVERAGE")), 10);
+        			nzd.add(Double.parseDouble(cur.get("PRICE").get("NZDUSD").get("AVERAGE")));
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("GBPUSD")!=null) {
         			addPoint(gbpusd_price, Double.parseDouble(cur.get("PRICE").get("GBPUSD").get("AVERAGE")));
         			addPointSMA(gbpusd_sma5, simple_moving_average_5_gbp, Double.parseDouble(cur.get("PRICE").get("GBPUSD").get("AVERAGE")), 5);
         			addPointSMA(gbpusd_sma10, simple_moving_average_10_gbp, Double.parseDouble(cur.get("PRICE").get("GBPUSD").get("AVERAGE")), 10);
         			addPointSD(gbpusd_sd10, standard_deviation_10_gbp, Double.parseDouble(cur.get("PRICE").get("GBPUSD").get("AVERAGE")), 10);
+        			gbp.add(Double.parseDouble(cur.get("PRICE").get("GBPUSD").get("AVERAGE")));
+
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("CHFUSD")!=null) {
         			addPoint(chfusd_price, Double.parseDouble(cur.get("PRICE").get("CHFUSD").get("AVERAGE")));
         			addPointSMA(chfusd_sma5, simple_moving_average_5_chf, Double.parseDouble(cur.get("PRICE").get("CHFUSD").get("AVERAGE")), 5);
         			addPointSMA(chfusd_sma10, simple_moving_average_10_chf, Double.parseDouble(cur.get("PRICE").get("CHFUSD").get("AVERAGE")), 10);
         			addPointSD(chfusd_sd10, standard_deviation_10_chf, Double.parseDouble(cur.get("PRICE").get("CHFUSD").get("AVERAGE")), 10);
+        			chf.add(Double.parseDouble(cur.get("PRICE").get("CHFUSD").get("AVERAGE")));
+
         		}
         		if(cur!=null && cur.get("PRICE")!=null&&cur.get("PRICE").get("AUDUSD")!=null) {
         			addPoint(audusd_price, Double.parseDouble(cur.get("PRICE").get("AUDUSD").get("AVERAGE")));
         			addPointSMA(audusd_sma5, simple_moving_average_5_aud, Double.parseDouble(cur.get("PRICE").get("AUDUSD").get("AVERAGE")), 5);
         			addPointSMA(audusd_sma10, simple_moving_average_10_aud, Double.parseDouble(cur.get("PRICE").get("AUDUSD").get("AVERAGE")), 10);
         			addPointSD(audusd_sd10, standard_deviation_10_aud, Double.parseDouble(cur.get("PRICE").get("AUDUSD").get("AVERAGE")), 10);
+        			aud.add(Double.parseDouble(cur.get("PRICE").get("AUDUSD").get("AVERAGE")));
+
         		}
+        		/*
+        		if(cad.size()>=TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(cad.subList(0, TradeRecommender.STATIC_RANGE),
+        	                    cad.subList(TradeRecommender.STATIC_RANGE, cad.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(cad.subList(0, TradeRecommender.STATIC_RANGE),
+        	                    cad.subList(TradeRecommender.STATIC_RANGE, cad.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}*/
+        		
+        		if(eur.size()>=TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(eur.subList(0, TradeRecommender.STATIC_RANGE),
+        	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(eur.subList(0, TradeRecommender.STATIC_RANGE),
+        	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}
+        		
+        		
+        		
         	} catch(Exception e) {
         		e.printStackTrace();
         		System.exit(1);
