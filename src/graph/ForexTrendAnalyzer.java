@@ -767,19 +767,31 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         			aud.add(Double.parseDouble(cur.get("PRICE").get("AUDUSD").get("AVERAGE")));
 
         		}
-        		/*
-        		if(cad.size()>=TradeRecommender.STATIC_RANGE*2){
+
+        		if(cad.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(cad.subList(0, TradeRecommender.STATIC_RANGE),
         	                    cad.subList(TradeRecommender.STATIC_RANGE, cad.size()));
         	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	cad_jl.setText("CADUSD BUY");
+	        	            	cad_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	cad_jl.setText("CADUSD SELL");
+	        	            	cad_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	cad_jl.setText("CADUSD HOLD");
+	        	            	cad_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
         	            long decisionTicks =
         	                TradeRecommender.decisionTicks(cad.subList(0, TradeRecommender.STATIC_RANGE),
         	                    cad.subList(TradeRecommender.STATIC_RANGE, cad.size()));
         	            System.out.println("Trade duration: " + decisionTicks);
-        		}*/
+        		}
         		
-        		if(eur.size()>=TradeRecommender.STATIC_RANGE*2){
+        		if(eur.size()>TradeRecommender.STATIC_RANGE*2){
         	        BuyDecision buyDecision =
         	                TradeRecommender.makeTradeDecision(eur.subList(0, TradeRecommender.STATIC_RANGE),
         	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
@@ -801,6 +813,122 @@ public class ForexTrendAnalyzer extends JFrame implements ActionListener
         	                    eur.subList(TradeRecommender.STATIC_RANGE, eur.size()));
         	            System.out.println("Trade duration: " + decisionTicks);
         		}
+        		
+        		if(chf.size()>TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(chf.subList(0, TradeRecommender.STATIC_RANGE),
+        	                    chf.subList(TradeRecommender.STATIC_RANGE, chf.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	chf_jl.setText("CHFUSD BUY");
+	        	            	chf_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	chf_jl.setText("CHFUSD SELL");
+	        	            	chf_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	chf_jl.setText("CHFUSD HOLD");
+	        	            	chf_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(chf.subList(0, TradeRecommender.STATIC_RANGE),
+        	                    chf.subList(TradeRecommender.STATIC_RANGE, chf.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}
+        		
+        		if(gbp.size()>TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(gbp.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		gbp.subList(TradeRecommender.STATIC_RANGE, gbp.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	gbp_jl.setText("GBPUSD BUY");
+	        	            	gbp_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	gbp_jl.setText("GBPUSD SELL");
+	        	            	gbp_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	gbp_jl.setText("GBPUSD HOLD");
+	        	            	gbp_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(gbp.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		gbp.subList(TradeRecommender.STATIC_RANGE, gbp.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}
+        		
+        		if(jpy.size()>TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(jpy.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		jpy.subList(TradeRecommender.STATIC_RANGE, jpy.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	jpy_jl.setText("JPYUSD BUY");
+	        	            	jpy_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	jpy_jl.setText("JPYUSD SELL");
+	        	            	jpy_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	jpy_jl.setText("JPYUSD HOLD");
+	        	            	jpy_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(jpy.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		jpy.subList(TradeRecommender.STATIC_RANGE, jpy.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}
+        		
+        		if(aud.size()>TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(aud.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		aud.subList(TradeRecommender.STATIC_RANGE, aud.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	aud_jl.setText("AUDUSD BUY");
+	        	            	aud_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	aud_jl.setText("AUDUSD SELL");
+	        	            	aud_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	aud_jl.setText("AUDUSD HOLD");
+	        	            	aud_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(aud.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		aud.subList(TradeRecommender.STATIC_RANGE, aud.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}
+        		
+        		if(nzd.size()>TradeRecommender.STATIC_RANGE*2){
+        	        BuyDecision buyDecision =
+        	                TradeRecommender.makeTradeDecision(nzd.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		nzd.subList(TradeRecommender.STATIC_RANGE, nzd.size()));
+        	            System.out.println("Buy decision: " + buyDecision);
+        	            if(buyDecision != null){
+	        	            if(buyDecision.toString().equalsIgnoreCase("BUY")){
+	        	            	nzd_jl.setText("NZDUSD BUY");
+	        	            	nzd_jl.setBackground(Color.GREEN);
+	        	            } else if(buyDecision.toString().equalsIgnoreCase("SELL")){
+	        	            	nzd_jl.setText("NZDUSD SELL");
+	        	            	nzd_jl.setBackground(Color.RED);
+	        	            } else {
+	        	            	nzd_jl.setText("NZDUSD HOLD");
+	        	            	nzd_jl.setBackground(Color.YELLOW);
+	        	            }
+        	            }
+        	            long decisionTicks =
+        	                TradeRecommender.decisionTicks(nzd.subList(0, TradeRecommender.STATIC_RANGE),
+        	                		nzd.subList(TradeRecommender.STATIC_RANGE, nzd.size()));
+        	            System.out.println("Trade duration: " + decisionTicks);
+        		}
+        		
         		
         		
         		
