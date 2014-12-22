@@ -134,7 +134,7 @@ public final class TradeRecommender
         return Math.round(tickSum / (double) tickList.size());
     }
 
-    public static BuyDecision makeBuyDecision(List<Double> currentRange, List<Double> allTrades)
+    public static BuyDecision makeTradeDecision(List<Double> currentRange, List<Double> allTrades)
     {
         PriorityQueue<SimilarityPair> simQueue = retrieveSimilarity(currentRange, allTrades);
         if (simQueue == null)
