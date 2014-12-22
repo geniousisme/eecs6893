@@ -6,61 +6,135 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarity;
+import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 
 public final class TradeRecommender
 {
-    private static final int STATIC_RANGE = 10;
-    private static final long STARTING_UID = 1, STARTING_IID = 1;
+    public static final int    STATIC_RANGE   = 40;
+    public static final int    MAX_RANGES     = 10;
+    public static final double MIN_SIMILARITY = 0.25;
+    public static final double ABS_HOLD_SCORE = 1e-5;
+    public static final double DECISION_RATIO = 0.5;
 
-    public static BuyDecision makeBuyDecision(List<Double> currentRange, List<Double> allTrades)
-    {
+    public static PriorityQueue<SimilarityPair> retrieveSimilarity(List<Double> currentRange,
+        List<Double> allTrades)
+        {
         if (allTrades.size() < STATIC_RANGE)
-            return BuyDecision.HOLD;
+            return null;
         double diff = scoreDifference(currentRange);
         // Chunk the data
         List<Double> diffScoreList = new ArrayList<Double>();
-        for (int i = 0; i < allTrades.size(); i += STATIC_RANGE)
-            diffScoreList.add(scoreDifference(allTrades.subList(i, Math.min(allTrades.size(), i
-                + STATIC_RANGE))));
+        for (int i = 0; i < allTrades.size(); i += STATIC_RANGE) {
+            double score =
+                scoreDifference(allTrades.subList(i, Math.min(allTrades.size(), i + STATIC_RANGE)));
+            // if (i / STATIC_RANGE == 303)
+            // System.out.println("304 score: " + score);
+            diffScoreList.add(score);
+        }
         List<Double> normalizedList = new ArrayList<Double>(diffScoreList.size() + 1);
         normalizedList.add(diff);
         normalizedList.addAll(diffScoreList);
         // Write it out into a temporary file
         File rangeFile = writeFileItemNormalizedDiffs(normalizedList);
-        // DataModel dm;
-        // try {
-        // dm = new FileDataModel(rangeFile);
-        // } catch (IOException e) {
-        // System.err.println("failed to make DataModel of " + rangeFile.getAbsolutePath() + ": "
-        // + e.getMessage());
-        // return null;
-        // }
-        // Get the item similarity
-        ItemSimilarity is = new FileItemSimilarity(rangeFile);
-        // ItemBasedRecommender rec = new GenericItemBasedRecommender(dm, is);
+        DataModel dm;
         try {
-            // System.out.println(dm.getPreferencesForItem(STARTING_IID));
-            // System.out.println(dm.getPreferencesForItem(STARTING_IID + 1));
-            // System.out.println("ItemBasedRecommender: most similar items: "
-            // + rec.mostSimilarItems(STARTING_IID, 10));
-            // System.out.println("ItemBasedRecommender: data model: " + rec.getDataModel());
-            // System.out.println("ItemBasedRecommender: estimate preference: "
-            // + rec.estimatePreference(STARTING_UID, STARTING_IID));
-            System.out.println("ItemBasedRecommender: all similar items: "
-                + is.allSimilarItemIDs(STARTING_IID).length);
-        } catch (TasteException e) {
-            System.err.println("ItemSimilarity failed");
+            dm = new FileDataModel(rangeFile);
+        } catch (IOException e) {
+            System.err.println("failed to make DataModel of " + rangeFile.getAbsolutePath() + ": "
+                + e.getMessage());
             return null;
         }
-        // System.out.println("Maximum preference: " + dm.getMaxPreference());
-        // System.out.println("Minimum preference: " + dm.getMinPreference());
-        System.out.println("Diff: " + diff);
-        return null;
+        // Get the item similarity
+        ItemSimilarity is = new FileItemSimilarity(rangeFile);
+        int numUsers;
+        try {
+            numUsers = dm.getNumUsers();
+            if (numUsers < 2)
+                return null;
+        } catch (TasteException e2) {
+            return null;
+        }
+        // Order the similarities
+        long[] itemIDs = new long[numUsers - 1];
+        for (int i = 2; i <= numUsers; i++)
+            itemIDs[i - 2] = i;
+        double[] itemSimilarities;
+        try {
+            itemSimilarities = is.itemSimilarities(1, itemIDs);
+        } catch (TasteException e) {
+            e.printStackTrace();
+            return null;
+        }
+        PriorityQueue<SimilarityPair> pq = new PriorityQueue<>();
+        for (int i = 0; i < itemIDs.length; i++)
+            pq.add(new SimilarityPair(itemIDs[i], itemSimilarities[i]));
+        return pq;
+        }
+
+    public static BuyDecision makeBuyDecision(List<Double> currentRange, List<Double> allTrades)
+    {
+        PriorityQueue<SimilarityPair> simQueue = retrieveSimilarity(currentRange, allTrades);
+        if (simQueue == null)
+            return null;
+
+        int numRanges = 0;
+        int numBuy = 0, numSell = 0;
+        double currentScore = scoreDifference(currentRange);
+        while (numRanges < MAX_RANGES && !simQueue.isEmpty()) {
+            SimilarityPair sp = simQueue.poll();
+            // Get the scores
+            double spScore =
+                scoreDifference(allTrades.subList((int) (sp.item2 - 1) * STATIC_RANGE, Math.min(
+                    allTrades.size(), (int) sp.item2 * STATIC_RANGE)));
+            // If the two scores aren't in the same direction
+            if (!isSameDirection(spScore, currentScore))
+                continue;
+            // The scores are too dissimilar
+            if (sp.similarity < MIN_SIMILARITY)
+                continue;
+            // If we're at this point, see which direction the market went in
+            double futurePastScore;
+            try {
+                futurePastScore =
+                    scoreDifference(allTrades.subList((int) sp.item2 * STATIC_RANGE, Math.min(
+                        allTrades.size(), (int) (sp.item2 + 1) * STATIC_RANGE)));
+            } catch (IndexOutOfBoundsException e) {
+                continue;
+            }
+            numRanges++;
+            System.out.println("Future score: " + futurePastScore);
+            System.out.println(sp);
+            System.out.println("Item 1: " + currentScore + ", item 2: " + spScore);
+            // If the futurePastScore is going up buy
+            if (futurePastScore > ABS_HOLD_SCORE)
+                numBuy++;
+            // If it's going down, sell
+            else if (futurePastScore < ABS_HOLD_SCORE)
+                numSell++;
+        }
+        // If the decision ratio is met, make that decision
+        if (numBuy / (double) numRanges >= DECISION_RATIO)
+            return BuyDecision.BUY;
+        else if (numSell / (double) numRanges >= DECISION_RATIO)
+            return BuyDecision.SELL;
+        else
+            return BuyDecision.HOLD;
+    }
+
+    private static boolean isSameDirection(double spScore, double currentScore)
+    {
+        if (spScore == 0 && currentScore == 0 || spScore > 0 && currentScore > 0 || spScore < 0
+            && currentScore < 0)
+            return true;
+        else
+            return false;
     }
 
     private static File writeFileItemNormalizedDiffs(List<Double> diffScoreList)
@@ -103,8 +177,8 @@ public final class TradeRecommender
             for (int j = 0; j < percentDiffs.size(); j++)
                 out.println(i + 1 + "," + (i + j + 2) + "," + percentDiffs.get(j) / maxAbsDiff);
         }
-        System.out.println(tmpFile.getAbsolutePath());
-        // tmpFile.deleteOnExit();
+        // System.out.println(tmpFile.getAbsolutePath());
+        tmpFile.deleteOnExit();
         out.close();
         return tmpFile;
     }
@@ -125,7 +199,9 @@ public final class TradeRecommender
             return range.get(0);
 
         // Compute the difference between the oldest value and the newest value
-        double diff = range.get(range.size() - 1) - range.get(0);
+        double diffSum = 0;
+        for (int i = 1; i < range.size(); i++)
+            diffSum += range.get(i) - range.get(0);
         // Create a regression model
         SimpleRegression sr = new SimpleRegression();
         double[][] data = new double[range.size()][range.size()];
@@ -134,18 +210,38 @@ public final class TradeRecommender
             data[i][1] = range.get(i);
         }
         sr.addData(data);
-        // System.out.println("Diff: " + diff + ", sr intercept: " + sr.getIntercept() + ", R: "
-        // + sr.getR() + " R2: " + sr.getRSquare());
-        diff *= sr.getRSquare();
-        // Use the original starting price as a weight, so that ranges with the same difference will
-        // differ based on where they started from
-        // diff += range.get(0);
-        return diff;
+        // If the range isn't strongly related, then penalize that
+        diffSum *= sr.getRSquare();
+        return diffSum;
     }
 
     public static enum BuyDecision
     {
         BUY, SELL, HOLD;
+    }
+
+    public static class SimilarityPair implements Comparable<SimilarityPair>
+    {
+        final long   item2;
+        final Double similarity;
+
+        public SimilarityPair(long item2, double similarity)
+        {
+            this.item2 = item2;
+            this.similarity = similarity;
+        }
+
+        @Override
+        public int compareTo(SimilarityPair o)
+        {
+            return o.similarity.compareTo(similarity);
+        }
+
+        @Override
+        public String toString()
+        {
+            return item2 + ": " + similarity;
+        }
     }
 
     private TradeRecommender() throws AssertionError
