@@ -1,4 +1,4 @@
-package data_streamer.math;
+package data_streamer.analytics;
 
 import java.io.IOException;
 import java.util.Calendar;
