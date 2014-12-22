@@ -30,11 +30,12 @@ public class TradeRecommenderTest
         List<Double> maxList = gatherTrades.get(SimpleStats.MAX_LIST_INDEX);
         BuyDecision buyDecision =
             TradeRecommender.makeTradeDecision(maxList.subList(0, TradeRecommender.STATIC_RANGE),
-                maxList.subList(TradeRecommender.STATIC_RANGE, maxList.size()));
+                maxList.subList(TradeRecommender.STATIC_RANGE, TradeRecommender.STATIC_RANGE * 3));
         System.out.println("Buy decision: " + buyDecision);
         long decisionTicks =
-            TradeRecommender.decisionTicks(maxList.subList(0, TradeRecommender.STATIC_RANGE),
-                maxList.subList(TradeRecommender.STATIC_RANGE, maxList.size()));
+            TradeRecommender.decisionTicks(maxList.subList(0,
+                TradeRecommender.STATIC_RANGE), maxList.subList(
+                TradeRecommender.STATIC_RANGE, maxList.size()));
         System.out.println("Trade duration: " + decisionTicks);
     }
 }
