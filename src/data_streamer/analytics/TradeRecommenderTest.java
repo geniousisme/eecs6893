@@ -32,5 +32,9 @@ public class TradeRecommenderTest
             TradeRecommender.makeBuyDecision(maxList.subList(0, TradeRecommender.STATIC_RANGE),
                 maxList.subList(TradeRecommender.STATIC_RANGE, maxList.size()));
         System.out.println("Buy decision: " + buyDecision);
+        long decisionTicks =
+            TradeRecommender.decisionTicks(maxList.subList(0, TradeRecommender.STATIC_RANGE),
+                maxList.subList(TradeRecommender.STATIC_RANGE, maxList.size()));
+        System.out.println("Trade duration: " + decisionTicks);
     }
 }

@@ -78,6 +78,62 @@ public final class TradeRecommender
         return pq;
         }
 
+    public static long decisionTicks(List<Double> currentRange, List<Double> allTrades)
+    {
+        PriorityQueue<SimilarityPair> simQueue = retrieveSimilarity(currentRange, allTrades);
+        if (simQueue == null)
+            return 0;
+
+        int numRanges = 0;
+        List<Long> tickList = new ArrayList<>();
+        double currentScore = scoreDifference(currentRange);
+        while (numRanges < MAX_RANGES && !simQueue.isEmpty()) {
+            SimilarityPair sp = simQueue.poll();
+            // Get the scores
+            double spScore =
+                scoreDifference(allTrades.subList((int) (sp.item2 - 1) * STATIC_RANGE, Math.min(
+                    allTrades.size(), (int) sp.item2 * STATIC_RANGE)));
+            // We don't care about direction, so much as the trend, represented by the score
+            // if (!isSameDirection(spScore, currentScore))
+            // continue;
+            // The scores are too dissimilar
+            if (sp.similarity < MIN_SIMILARITY)
+                continue;
+            // If we're at this point, see which direction the market went in
+            double futurePastScore;
+            try {
+                futurePastScore =
+                    scoreDifference(allTrades.subList((int) sp.item2 * STATIC_RANGE, Math.min(
+                        allTrades.size(), (int) (sp.item2 + 1) * STATIC_RANGE)));
+            } catch (IndexOutOfBoundsException e) {
+                continue;
+            }
+            numRanges++;
+            System.out.println("Future score: " + futurePastScore);
+            System.out.println(sp);
+            System.out.println("Item 1: " + currentScore + ", item 2: " + spScore);
+            // If the score continues in the same direction, increment ticks
+            long ticks = STATIC_RANGE / 2;
+            int pos = 1;
+            while ((sp.item2 + pos) * STATIC_RANGE < allTrades.size()) {
+                double futurePastFutureScore =
+                    scoreDifference(allTrades.subList((int) (sp.item2 + pos) * STATIC_RANGE, Math
+                        .min(allTrades.size(), (int) (sp.item2 + pos + 1) * STATIC_RANGE)));
+                if (isSameDirection(futurePastFutureScore, futurePastScore))
+                    ticks += STATIC_RANGE;
+                else
+                    break;
+                pos++;
+            }
+            tickList.add(ticks);
+        }
+        // Average the ticklist
+        long tickSum = 0;
+        for (Long tick : tickList)
+            tickSum += tick;
+        return Math.round(tickSum / (double) tickList.size());
+    }
+
     public static BuyDecision makeBuyDecision(List<Double> currentRange, List<Double> allTrades)
     {
         PriorityQueue<SimilarityPair> simQueue = retrieveSimilarity(currentRange, allTrades);
