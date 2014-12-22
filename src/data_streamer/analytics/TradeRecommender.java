@@ -35,8 +35,8 @@ public final class TradeRecommender
             double score =
                 scoreDifference(allTrades.subList(i, Math.min(allTrades.size(),
                     i + STATIC_RANGE)));
-            if (i / STATIC_RANGE == 302)
-                System.out.println("304 score: " + score);
+            // if (i / STATIC_RANGE == 332)
+            // System.out.println("334 score: " + score);
             diffScoreList.add(score);
         }
         List<Double> normalizedList =
@@ -100,8 +100,8 @@ public final class TradeRecommender
                     (int) (sp.item2 - 1) * STATIC_RANGE)));
             // We don't care about direction, so much as the trend, represented
             // by the score
-            // if (!isSameDirection(spScore, currentScore))
-            // continue;
+            if (!isSameDirection(spScore, currentScore))
+                continue;
             // The scores are too dissimilar
             if (sp.similarity < MIN_SIMILARITY)
                 continue;
@@ -114,7 +114,7 @@ public final class TradeRecommender
                         (int) (sp.item2) * STATIC_RANGE)));
             } catch (IndexOutOfBoundsException e) {
                 continue;
-            } catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 continue;
             }
             numRanges++;
@@ -164,10 +164,10 @@ public final class TradeRecommender
                     * STATIC_RANGE, Math.min(allTrades.size(),
                     (int) (sp.item2 - 1) * STATIC_RANGE)));
             // If the two scores aren't in the same direction
-            // if (!isSameDirection(spScore, currentScore)){
-            // System.err.println("Not in same direction");
-            // continue;
-            // }
+            if (!isSameDirection(spScore, currentScore)) {
+                System.err.println("Not in same direction");
+                continue;
+            }
             // The scores are too dissimilar
             if (sp.similarity < MIN_SIMILARITY)
                 continue;
@@ -251,9 +251,16 @@ public final class TradeRecommender
                     maxAbsDiff = absDiff;
                 percentDiffs.add(percentDiff);
             }
-            for (int j = 0; j < percentDiffs.size(); j++)
-                out.println(i + 1 + "," + (i + j + 2) + ","
-                    + percentDiffs.get(j) / maxAbsDiff);
+            for (int j = 0; j < percentDiffs.size(); j++) {
+                double normDiff = percentDiffs.get(j) / maxAbsDiff;
+                // Invert the diff. Items with the greatest difference are the
+                // least similar
+                if (normDiff < 0)
+                    normDiff = -1 - normDiff;
+                else
+                    normDiff = 1 - normDiff;
+                out.println(i + 1 + "," + (i + j + 2) + "," + normDiff);
+            }
         }
         // System.out.println(tmpFile.getAbsolutePath());
         tmpFile.deleteOnExit();
