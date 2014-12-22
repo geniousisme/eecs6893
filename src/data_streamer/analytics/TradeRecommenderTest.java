@@ -11,7 +11,9 @@ public class TradeRecommenderTest
 {
     public static void main(String[] args)
     {
-        Market mkt = new Market("src/config/market.config", "src/config/data_config.txt", "./");
+        Market mkt =
+            new Market("src/config/market.config",
+                "src/config/data_config.txt", "./");
 
         try {
             mkt.loadConfigs();
@@ -26,11 +28,13 @@ public class TradeRecommenderTest
             System.exit(1);
         }
 
-        List<List<Double>> gatherTrades = SimpleStats.gatherTrades(new Date(0), new Date(), mkt);
+        List<List<Double>> gatherTrades =
+            SimpleStats.gatherTrades(new Date(0), new Date(), mkt);
         List<Double> maxList = gatherTrades.get(SimpleStats.MAX_LIST_INDEX);
         BuyDecision buyDecision =
-            TradeRecommender.makeTradeDecision(maxList.subList(0, TradeRecommender.STATIC_RANGE),
-                maxList.subList(TradeRecommender.STATIC_RANGE, TradeRecommender.STATIC_RANGE * 3));
+            TradeRecommender.makeTradeDecision(maxList.subList(0,
+                TradeRecommender.STATIC_RANGE), maxList.subList(
+                TradeRecommender.STATIC_RANGE, maxList.size()));
         System.out.println("Buy decision: " + buyDecision);
         long decisionTicks =
             TradeRecommender.decisionTicks(maxList.subList(0,
