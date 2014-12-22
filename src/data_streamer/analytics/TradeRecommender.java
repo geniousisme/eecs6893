@@ -163,6 +163,8 @@ public final class TradeRecommender
                         allTrades.size(), (int) (sp.item2 + 1) * STATIC_RANGE)));
             } catch (IndexOutOfBoundsException e) {
                 continue;
+            } catch (IllegalArgumentException e) {
+                continue;
             }
             numRanges++;
             System.out.println("Future score: " + futurePastScore);
