@@ -6,15 +6,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<ScrollPane fitToHeight="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" styleClass="background" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="data_streamer.fx.view.BarChartAveragesController">
-   <content>
-      <BarChart fx:id="currencyBarGraph" legendVisible="false" styleClass="background" title="Latest Currency Trades" verticalZeroLineVisible="false">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" fx:id="xAxis" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </BarChart>
-   </content>
-</ScrollPane>
+
+<BarChart fx:id="currencyBarGraph" legendVisible="false" styleClass="background" title="Latest Currency Trades" verticalZeroLineVisible="false" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="data_streamer.fx.view.BarChartAveragesController">
+  <xAxis>
+    <CategoryAxis side="BOTTOM" fx:id="xAxis" />
+  </xAxis>
+  <yAxis>
+    <NumberAxis side="LEFT" />
+  </yAxis>
+</BarChart>

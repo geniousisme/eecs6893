@@ -14,13 +14,16 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import data_streamer.Market;
 import data_streamer.fx.view.BarChartAveragesController;
+import data_streamer.fx.view.LineGraphController;
 
 public class ForexTerminal extends Application
 {
@@ -37,6 +40,8 @@ public class ForexTerminal extends Application
     private Market                      mkt;
 
     private BarChartAveragesController  barChartController;
+
+    private LineGraphController         lineGraphController;
 
     public Stage getPrimaryStage()
     {
@@ -102,7 +107,7 @@ public class ForexTerminal extends Application
             loader
                 .setLocation(ForexTerminal.class
                     .getResource("/data_streamer/fx/view/BarChartAveragesView.fxml"));
-            ScrollPane sp = (ScrollPane) loader.load();
+            BarChart<?, ?> sp = (BarChart<?, ?>) loader.load();
 
             barChartController = loader.getController();
             // The only child of terminalView is the SplitPane
@@ -155,10 +160,40 @@ public class ForexTerminal extends Application
                 }
             }
             barChartController.updateBars(avgMap);
+            lineGraphController.updateGraphs(avgMap);
         }
     }
 }       ;
         exec.execute(updateMarket);
+    }
+
+    private void showLineGraphs()
+    {
+        // The only child of terminalView is the SplitPane
+        for (Node node : terminalView.getChildren()) {
+            SplitPane pane = (SplitPane) node;
+            for (Node split : pane.getItems()) {
+                String id = split.getId();
+                if (id != null && id.equals("topBarPane")) {
+                    // Found the pane, get the split pane
+                    AnchorPane aPane = (AnchorPane) split;
+                    SplitPane topPane = (SplitPane) aPane.getChildren().get(0);
+                    for (Node topPaneNode : topPane.getItems()) {
+                        id = topPaneNode.getId();
+                        if (id != null && id.equals("graphsAnchorPane")) {
+                            AnchorPane graphAnchorPane =
+                                (AnchorPane) topPaneNode;
+                            // Get the VBox
+                            VBox lineGraphBox =
+                                (VBox) ((ScrollPane) graphAnchorPane
+                                    .getChildren().get(0)).getContent();
+                            lineGraphController = new LineGraphController();
+                            lineGraphController.initialize(lineGraphBox);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -171,6 +206,7 @@ public class ForexTerminal extends Application
 
         showTerminalView();
         showExchangeBarGraph();
+        showLineGraphs();
 
         runMarket();
     }

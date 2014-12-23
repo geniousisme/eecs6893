@@ -51,6 +51,7 @@ public final class TradeRecommender
         } catch (IOException e) {
             System.err.println("failed to make DataModel of "
                 + rangeFile.getAbsolutePath() + ": " + e.getMessage());
+            rangeFile.delete();
             return null;
         }
         // Get the item similarity
@@ -61,6 +62,7 @@ public final class TradeRecommender
             if (numUsers < 2)
                 return null;
         } catch (TasteException e2) {
+            rangeFile.delete();
             return null;
         }
         // Order the similarities
@@ -72,11 +74,13 @@ public final class TradeRecommender
             itemSimilarities = is.itemSimilarities(1, itemIDs);
         } catch (TasteException e) {
             e.printStackTrace();
+            rangeFile.delete();
             return null;
         }
         PriorityQueue<SimilarityPair> pq = new PriorityQueue<>();
         for (int i = 0; i < itemIDs.length; i++)
             pq.add(new SimilarityPair(itemIDs[i], itemSimilarities[i]));
+        rangeFile.delete();
         return pq;
     }
 
@@ -111,17 +115,17 @@ public final class TradeRecommender
                 futurePastScore =
                     scoreDifference(allTrades.subList((int) (sp.item2 - 1)
                         * STATIC_RANGE, Math.min(allTrades.size(),
-                        (int) (sp.item2) * STATIC_RANGE)));
+                        (int) sp.item2 * STATIC_RANGE)));
             } catch (IndexOutOfBoundsException e) {
                 continue;
             } catch (IllegalArgumentException e) {
                 continue;
             }
             numRanges++;
-            System.out.println("Future score: " + futurePastScore);
-            System.out.println(sp);
-            System.out.println("Item 1: " + currentScore + ", item 2: "
-                + spScore);
+            // System.out.println("Future score: " + futurePastScore);
+            // System.out.println(sp);
+            // System.out.println("Item 1: " + currentScore + ", item 2: "
+            // + spScore);
             // If the score continues in the same direction, increment ticks
             long ticks = STATIC_RANGE / 2;
             int pos = 0;
@@ -164,10 +168,9 @@ public final class TradeRecommender
                     * STATIC_RANGE, Math.min(allTrades.size(),
                     (int) (sp.item2 - 1) * STATIC_RANGE)));
             // If the two scores aren't in the same direction
-            if (!isSameDirection(spScore, currentScore)) {
-                System.err.println("Not in same direction");
+            if (!isSameDirection(spScore, currentScore))
+                // System.err.println("Not in same direction");
                 continue;
-            }
             // The scores are too dissimilar
             if (sp.similarity < MIN_SIMILARITY)
                 continue;
@@ -177,17 +180,17 @@ public final class TradeRecommender
                 futurePastScore =
                     scoreDifference(allTrades.subList((int) (sp.item2 - 1)
                         * STATIC_RANGE, Math.min(allTrades.size(),
-                        (int) (sp.item2) * STATIC_RANGE)));
+                        (int) sp.item2 * STATIC_RANGE)));
             } catch (IndexOutOfBoundsException e) {
                 continue;
             } catch (IllegalArgumentException e) {
                 continue;
             }
             numRanges++;
-            System.out.println("Future score: " + futurePastScore);
-            System.out.println(sp);
-            System.out.println("Item 1: " + currentScore + ", item 2: "
-                + spScore);
+            // System.out.println("Future score: " + futurePastScore);
+            // System.out.println(sp);
+            // System.out.println("Item 1: " + currentScore + ", item 2: "
+            // + spScore);
             // If the futurePastScore is going up buy
             if (futurePastScore > ABS_HOLD_SCORE)
                 numBuy++;
