@@ -14,48 +14,32 @@
                <children>
                   <SplitPane dividerPositions="0.2" prefHeight="503.0" prefWidth="1280.0" styleClass="background" AnchorPane.bottomAnchor="-0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
-                      <AnchorPane styleClass="background">
+                      <AnchorPane fx:id="tableAnchorPane" styleClass="background">
                            <children>
                               <TabPane fx:id="statisticTabs" layoutX="26.0" layoutY="14.0" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <tabs>
-                                  <Tab closable="false" text="Averages">
+                                  <Tab fx:id="averages" closable="false" text="Averages">
                                        <content>
-                                          <ScrollPane fitToWidth="true" prefViewportHeight="460.0" prefViewportWidth="252.0">
+                                          <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
                                              <content>
-                                                <TableView>
-                                                  <columns>
-                                                    <TableColumn prefWidth="75.0" text="Exchange" />
-                                                    <TableColumn prefWidth="75.0" text="Latest 10" />
-                                                  </columns>
-                                                </TableView>
+                                                <ListView prefHeight="200.0" prefWidth="200.0" />
                                              </content>
                                           </ScrollPane>
                                        </content>
                                     </Tab>
-                                  <Tab closable="false" text="Variance">
+                                  <Tab fx:id="variances" closable="false" text="Variances">
                                        <content>
                                           <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
                                              <content>
-                                                <TableView>
-                                                  <columns>
-                                                    <TableColumn prefWidth="75.0" text="Exchange" />
-                                                    <TableColumn prefWidth="75.0" text="Latest 10" />
-                                                  </columns>
-                                                </TableView>
+                                                <ListView prefHeight="200.0" prefWidth="200.0" />
                                              </content>
                                           </ScrollPane>
                                        </content></Tab>
-                                    <Tab closable="false" text="Trends">
+                                    <Tab fx:id="trends" closable="false" text="Trends">
                                        <content>
                                           <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
                                              <content>
-                                                <TableView>
-                                                  <columns>
-                                                    <TableColumn prefWidth="75.0" text="Exchange" />
-                                                    <TableColumn prefWidth="75.0" text="Buy/Sell" />
-                                                      <TableColumn prefWidth="75.0" text="Duration" />
-                                                  </columns>
-                                                </TableView>
+                                                <ListView prefHeight="200.0" prefWidth="200.0" />
                                              </content>
                                           </ScrollPane>
                                        </content></Tab>

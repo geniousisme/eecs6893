@@ -15,8 +15,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -24,6 +27,7 @@ import javafx.stage.Stage;
 import data_streamer.Market;
 import data_streamer.fx.view.BarChartAveragesController;
 import data_streamer.fx.view.LineGraphController;
+import data_streamer.fx.view.TableViewController;
 
 public class ForexTerminal extends Application
 {
@@ -42,6 +46,8 @@ public class ForexTerminal extends Application
     private BarChartAveragesController  barChartController;
 
     private LineGraphController         lineGraphController;
+
+    private TableViewController         tableViewController;
 
     public Stage getPrimaryStage()
     {
@@ -196,6 +202,47 @@ public class ForexTerminal extends Application
         }
     }
 
+    private void showTableStates()
+    {
+        tableViewController = new TableViewController();
+        // The only child of terminalView is the SplitPane
+        for (Node node : terminalView.getChildren()) {
+            SplitPane pane = (SplitPane) node;
+            for (Node split : pane.getItems()) {
+                String id = split.getId();
+                if (id != null && id.equals("topBarPane")) {
+                    // Found the pane, get the split pane
+                    AnchorPane aPane = (AnchorPane) split;
+                    SplitPane topPane = (SplitPane) aPane.getChildren().get(0);
+                    for (Node topPaneNode : topPane.getItems()) {
+                        id = topPaneNode.getId();
+                        if (id != null && id.equals("tableAnchorPane")) {
+                            AnchorPane tabAnchorPane = (AnchorPane) topPaneNode;
+                            // Get the TabPane
+                            TabPane tabPane =
+                                (TabPane) tabAnchorPane.getChildren().get(0);
+                            for (Tab tab : tabPane.getTabs()) {
+                                id = tab.getId();
+                                if (id != null && id.equals("averages"))
+                                    tableViewController
+                                        .setAverages((ListView<String>) ((ScrollPane) tab
+                                            .getContent()).getContent());
+                                else if (id != null && id.equals("variances"))
+                                    tableViewController
+                                        .setVariances((ListView<String>) ((ScrollPane) tab
+                                            .getContent()).getContent());
+                                else if (id != null && id.equals("trends"))
+                                    tableViewController
+                                        .setTrends((ListView<String>) ((ScrollPane) tab
+                                            .getContent()).getContent());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void start(Stage primaryStage)
     {
@@ -207,6 +254,7 @@ public class ForexTerminal extends Application
         showTerminalView();
         showExchangeBarGraph();
         showLineGraphs();
+        showTableStates();
 
         runMarket();
     }

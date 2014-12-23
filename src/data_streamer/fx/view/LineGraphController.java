@@ -102,10 +102,19 @@ public class LineGraphController
                 label.setStyle("    -fx-font-size: 32pt;\r\n"
                     + "    -fx-font-family: \"Segoe UI\";\r\n"
                     + "    -fx-opacity: 1; -fx-weight: bolder;");
-                lineGraphBox.getChildren().add(label);
-                label.setTextAlignment(TextAlignment.CENTER);
-                for (String chartString : chartStrings)
-                    lineGraphBox.getChildren().add(exCharts.get(chartString));
+                final Map<String, LineChart<String, Number>> exCharts2 =
+                    exCharts;
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        lineGraphBox.getChildren().add(label);
+                        label.setTextAlignment(TextAlignment.CENTER);
+                        for (String chartString : chartStrings)
+                            lineGraphBox.getChildren().add(
+                                exCharts2.get(chartString));
+                    }
+                });
                 currentShowingEx = avgEntry.getKey();
             }
         }
