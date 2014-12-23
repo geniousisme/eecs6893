@@ -76,6 +76,7 @@ public class LineGraphController
             return;
         lastUpdated = System.currentTimeMillis();
         // For each update
+        boolean firstRun = true;
         for (Map.Entry<String, Double> avgEntry : avgMap.entrySet()) {
             Map<String, LineChart<String, Number>> exCharts =
                 graphMap.get(avgEntry.getKey());
@@ -97,7 +98,8 @@ public class LineGraphController
             updateChartData(exCharts, exList);
 
             // Add the first currency
-            if (lineGraphBox.getChildren().isEmpty()) {
+            if (lineGraphBox.getChildren().isEmpty() && firstRun) {
+                firstRun = false;
                 Label label = new Label(avgEntry.getKey());
                 label.setStyle("    -fx-font-size: 32pt;\r\n"
                     + "    -fx-font-family: \"Segoe UI\";\r\n"

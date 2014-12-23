@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
-<anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://org.eclipse.fx.ide.jdt/1.0" buildDirectory="${project}/build" cssToBin="true">
-  <deploy includeDT="true" packagingFormat="all">
+<anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://org.eclipse.fx.ide.jdt/1.0" buildDirectory="${project}/build">
+  <deploy embedjnlp="true" height="720" includeDT="true" offlineAllowed="false" placeholderid="" width="1280" packagingFormat="none">
     <application name="AddressApp" mainclass="data_streamer.fx.ForexTerminal" version="1.0" toolkit="fx"/>
-    <info title="Forex Terminal"/>
+    <info title="Forex Terminal" vendor="Sapphirine"/>
   </deploy>
   <signjar/>
 </anttasks:AntTask>

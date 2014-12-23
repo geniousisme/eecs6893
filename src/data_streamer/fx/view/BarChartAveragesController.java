@@ -79,12 +79,16 @@ public class BarChartAveragesController
                         {
                             for (XYChart.Data<String, Double> data : xSeries
                                 .getData())
-                                if (newValues.containsKey(data.getXValue()))
+                                if (newValues.containsKey(data.getXValue())) {
                                     // System.out.println("Old value: "
                                     // + data.getYValue() + ", new value: "
                                     // + newValues.get(data.getXValue()));
+                                    Double prevVal = data.getYValue();
+                                    data.setExtraValue(newValues.get(data
+                                        .getXValue()));
                                     data.setYValue(newValues.get(data
                                         .getXValue()));
+                                }
                         }
                     }));
                 tl.play();
