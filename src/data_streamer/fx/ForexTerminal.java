@@ -167,6 +167,7 @@ public class ForexTerminal extends Application
             }
             barChartController.updateBars(avgMap);
             lineGraphController.updateGraphs(avgMap);
+            tableViewController.updateTables(avgMap);
         }
     }
 }       ;

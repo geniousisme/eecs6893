@@ -22,7 +22,7 @@
                                        <content>
                                           <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
                                              <content>
-                                                <ListView prefHeight="200.0" prefWidth="200.0" />
+                                                <ListView />
                                              </content>
                                           </ScrollPane>
                                        </content>
@@ -31,7 +31,7 @@
                                        <content>
                                           <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
                                              <content>
-                                                <ListView prefHeight="200.0" prefWidth="200.0" />
+                                                <ListView />
                                              </content>
                                           </ScrollPane>
                                        </content></Tab>
@@ -39,7 +39,7 @@
                                        <content>
                                           <ScrollPane fitToWidth="true" prefViewportHeight="458.0" prefViewportWidth="251.0">
                                              <content>
-                                                <ListView prefHeight="200.0" prefWidth="200.0" />
+                                                <ListView />
                                              </content>
                                           </ScrollPane>
                                        </content></Tab>
