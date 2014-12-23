@@ -25,7 +25,7 @@ import javafx.scene.text.TextAlignment;
 public class LineGraphController
 {
     private static long                                         UPDATE_INTERVAL  =
-                                                                                     500;
+                                                                                     250;
 
     private AtomicBoolean                                       isUpdatingGraphs =
                                                                                      new AtomicBoolean(
@@ -40,7 +40,7 @@ public class LineGraphController
                                                                                      new HashMap<>();
 
     private static final long                                   MAX_TICKS        =
-                                                                                     500;
+                                                                                     50;
 
     private static final String                                 PRICE            = "PRICE",
         FIVE_TICK_SIM_MOV_AVG = "5 Tick Simple Moving Average",
@@ -56,9 +56,12 @@ public class LineGraphController
 
     private SimpleDateFormat                                    tickFormat       =
                                                                                      new SimpleDateFormat(
-                                                                                         "HH:mm:ss");
+                                                                                         "HH:mm:ss:SSS");
 
     private String                                              currentShowingEx;
+
+    private long                                                lastUpdated      =
+                                                                                     0;
 
     public void initialize(VBox lineGraphBox)
     {
@@ -67,8 +70,11 @@ public class LineGraphController
 
     public void updateGraphs(Map<String, Double> avgMap)
     {
+        if (System.currentTimeMillis() - lastUpdated < UPDATE_INTERVAL)
+            return;
         if (isUpdatingGraphs.getAndSet(true))
             return;
+        lastUpdated = System.currentTimeMillis();
         // For each update
         for (Map.Entry<String, Double> avgEntry : avgMap.entrySet()) {
             Map<String, LineChart<String, Number>> exCharts =
@@ -120,8 +126,15 @@ public class LineGraphController
                         chart.getData().get(0);
                     ObservableList<Data<String, Number>> data =
                         series.getData();
-                    if (data.size() >= MAX_TICKS)
+                    ObservableList<Data<String, Number>> data2 = null;
+                    if (chartString.equals(TEN_TICK_BB))
+                        data2 = chart.getData().get(1).getData();
+
+                    if (data.size() >= MAX_TICKS) {
                         data.remove(0);
+                        if (data2 != null)
+                            data2.remove(0);
+                    }
 
                     if (chartString.equals(PRICE))
                         data.add(new XYChart.Data<String, Number>(tickFormat
@@ -151,15 +164,14 @@ public class LineGraphController
                         List<Double> subList =
                             exList.subList(Math.max(exList.size() - 10, 0),
                                 exList.size());
-                        ObservableList<Data<String, Number>> data2 =
-                            chart.getData().get(1).getData();
 
                         double sd = ForexTrendAnalyzer.sd(subList);
                         double sma = ForexTrendAnalyzer.sma(subList);
-                        data.add(new XYChart.Data<String, Number>(tickFormat
-                            .format(new Date()), sma + 2 * sd));
-                        data2.add(new XYChart.Data<String, Number>(tickFormat
-                            .format(new Date()), sma - 2 * sd));
+                        String format = tickFormat.format(new Date());
+                        data.add(new XYChart.Data<String, Number>(format, sma
+                            + 2 * sd));
+                        data2.add(new XYChart.Data<String, Number>(format, sma
+                            - 2 * sd));
                     }
                 }
             }
@@ -175,6 +187,7 @@ public class LineGraphController
             xAxis.setAnimated(false);
             yAxis.setLabel(chartString);
             yAxis.setAnimated(false);
+            yAxis.setForceZeroInRange(false);
             // creating the chart
             final LineChart<String, Number> lineChart =
                 new LineChart<String, Number>(xAxis, yAxis);
